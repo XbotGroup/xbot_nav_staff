@@ -1,0 +1,12 @@
+<launch>
+  <arg name = "use_odom_topic"               value = "/robot_position_in_map"/>
+  <arg name = "use_marker_topic"               value = "/ui_marker"/>
+  <arg name = "use_status_topic"               value = "/move_base/status"/>
+  <arg name = "task_number"               value = "1"/>
+  
+ <node pkg="tasks" type="go_tasks_move_base.py" name="go_tasks" respawn="true" />
+   <param name = "use_odom_topic"     value = "$(arg use_odom_topic)"/>
+   <param name = "use_marker_topic"     value = "$(arg use_marker_topic)"/>
+   <param name = "task_number"     value = "$(arg task_number)"/>
+   <param name = "use_status_topic"     value = "$(arg use_status_topic)"/>
+</launch>

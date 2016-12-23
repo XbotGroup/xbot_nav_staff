@@ -1,0 +1,41 @@
+<launch>
+  <arg name = "use_warning_marker_topic"              default = '/warning_marker' />
+  <arg name = "use_stop_flag_topic"                   default = '/stop_flag' />
+  <arg name = "use_map_topic"                         default = '/map' />
+  <arg name = "use_odom_topic"                        default = '/camera_odom' />
+  <arg name = "use_scan_topic"                        default = '/scan' />
+  <arg name = "use_projection_topic"                  default = '/obstacles/projection' />
+
+  <arg name = "particles"                             default = '60' />
+  <arg name = "detector_resolution"                   default = '20' />
+  <arg name = "detector_radius"                       default = '0.2' />
+  <arg name = "Maxdetect"                             default = '2.0' />
+  <arg name = "Mindetect"                             default = '0.2' />
+
+  <!--stopmove_edit.py-->
+  <node pkg="obstacle_warning" type="DetectorStopMove2.py" name="DetectorStopMove"  output="screen">
+   <param name = 'use_warning_marker_topic'               value = "$(arg use_warning_marker_topic)" />
+   <param name = 'use_stop_flag_topic'                    value = "$(arg use_stop_flag_topic)" />
+   <param name = 'use_map_topic'                          value = "$(arg use_map_topic)" />
+   <param name = 'use_odom_topic'                         value = "$(arg use_odom_topic)" />
+   <param name = 'use_scan_topic'                         value = "$(arg use_scan_topic)" />
+   <param name = 'use_projection_topic'                   value = "$(arg use_projection_topic)" />
+
+   <param name = 'particles'                              value = "$(arg particles)" />
+   <param name = 'detector_resolution'                    value = "$(arg detector_resolution)" />
+   <param name = 'detector_radius'                        value = "$(arg detector_radius)" />
+   <param name = 'Maxdetect'                              value = "$(arg Maxdetect)" />
+   <param name = 'Mindetect'                              value = "$(arg Mindetect)" />
+  </node>
+
+
+  <arg name = "target_frame"               value = "map"/>
+  <arg name = "source_frame"               value = "camera_depth_frame"/>
+  <node pkg="amcl_odom"  type="amcl_odom.py"  name="camera_position" output="screen" respawn="true">
+   <param name = "target_frame"     value = "$(arg target_frame)"/>
+   <param name = "source_frame"     value = "$(arg source_frame)"/>
+   <param name = "use_odom_topic"   value = "$(arg use_odom_topic)"/>
+  </node>
+
+</launch>
+

@@ -1,0 +1,68 @@
+<!--this file is demo for nav with auto obstacle avoidance -->
+<launch>
+  <!--<arg name="custom_param_file" default="$(find nav_staff)/param/dummy.yaml"/>-->
+  <param name="use_sim_time" value="false" />
+  
+  <!--map saver-->
+  <arg name="map_path" default="$(find nav_staff)/map/"/>
+  <arg name="map_file" default="5-12.yaml"/>
+  <arg name="frame_id"   default="map"/>
+  <arg name="root_topic"   default="obstacles"/>
+  <arg name="use_map_topic"   default="map"/>
+  <arg name="initial_pose_x" default="-0.65"/>
+  <arg name="initial_pose_y" default="8.7"/>
+  <arg name="initial_pose_a" default="0.012655300076848213"/>
+
+  <!-- Run the map server with the desired map -->
+  <!--<node name="map_server" pkg="nav_staff" type="ReadMap.py" output="screen" respawn="true" /> -->
+  <node name="map_server" pkg="nav_staff" type="ReadMap.py" output="screen" respawn="true" >
+   <param name="map_path"   value="$(arg map_path)"/>
+   <param name="map_file"   value="$(arg map_file)"/>
+   <param name="frame_id"   value="$(arg frame_id)"/>
+   <param name="root_topic"   value="$(arg root_topic)"/>
+   <param name="use_map_topic"   value="$(arg use_map_topic)"/>
+  </node>
+
+  <!--amcl-->
+  <include file="$(find nav_staff)/launch/xml/amcl_xu.launch.xml">
+   <arg name="initial_pose_x"   value="$(arg initial_pose_x)"/>
+   <arg name="initial_pose_y"   value="$(arg initial_pose_y)"/>
+   <arg name="initial_pose_a"   value="$(arg initial_pose_a)"/>
+  </include>
+
+  <!--amcl odom-->
+  <arg name="target_frame"               value="/map"/>
+  <arg name="source_frame"               value="/base_footprint"/>
+  <arg name="use_odom_topic"             value="/robot_position_in_map"/>
+  <include file="$(find amcl_odom)/launch/robot_position_in_map.launch">
+   <param name="target_frame"   value="$(arg target_frame)"/>
+   <param name="source_frame"   value="$(arg source_frame)"/>
+   <param name="use_odom_topic"   value="$(arg use_odom_topic)"/>
+  </include>
+
+  <!--move base-->
+  <include file="$(find nav_staff)/launch/xml/move_base_xu.launch.xml">
+   <!--<arg name="custom_param_file"       value="$(arg custom_param_file)"/>-->
+  </include>
+
+  <!-- Laserscan topic -->
+  <arg name="scan_topic" default="/scan"/>
+  <arg name="scan_processing" default="true"/>
+  <arg name="scan_height"      default="200"/>
+   <!-- Factory-calibrated depth registration -->
+  <!--<arg name="camera"      default="camera"/>-->
+   <!--Laserscan-->
+  <group if="$(arg scan_processing)">
+   <node pkg="nodelet" type="nodelet" name="depthimage_to_laserscan" args="load depthimage_to_laserscan/DepthImageToLaserScanNodelet camera/camera_nodelet_manager">
+    <param name="scan_height" value="$(arg scan_height)"/>
+    <param name="output_frame_id" value="/camera_depth_frame"/>
+    <param name="range_min" value="0.0"/>
+    <param name="range_max" value="10.0"/>
+    <remap from="scan" to="$(arg scan_topic)"/>
+    <!--<remap from="image" to="/camera/depth_registered/sw_registered/image_rect"/>-->
+    <!--<remap from="$(arg camera)/image" to="/camera/depth_registered/sw_registered/image_rect"/>-->   <remap from="image" to="/camera/depth_registered/image_raw"/>-->
+    <remap from="camera/image" to="/camera/depth_registered/image_raw"/>
+    <remap from="camera/scan" to="$(arg scan_topic)"/>
+   </node>
+  </group>
+</launch>
