@@ -1,0 +1,8 @@
+<launch>
+    <arg name = 'MotionTopice'      default = 'cmd_vel_mux/input/smoother' />
+    <arg name = 'CmdTopice'         default = 'cmd_vel_mux/input/navi' />
+    <node pkg='nav_staff' type='smoother.py' name='Cmd_Smoother' output="screen">
+        <param name="MotionTopice"         value="$(arg MotionTopice)" />
+        <param name="CmdTopice"            value="$(arg CmdTopice)" />
+    </node>
+</launch>

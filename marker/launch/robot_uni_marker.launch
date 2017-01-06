@@ -1,7 +1,0 @@
-<launch> 
- <include file="$(find marker)/launch/xml/robot_uni_marker.launch.xml" >
-  <arg name = "robot_laber"             value = "  Xbot " />
-  <arg name = "laber_height"            value = '1.3'   />
- </include>
-</launch>
-

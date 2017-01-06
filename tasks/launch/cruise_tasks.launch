@@ -1,3 +1,0 @@
-<launch>
- <node pkg="tasks" type="cruise_tasks.py" name="cruise_tasks" respawn="true" output= 'screen'/>
-</launch>
