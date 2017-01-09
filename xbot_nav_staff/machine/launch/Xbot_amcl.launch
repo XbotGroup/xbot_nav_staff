@@ -41,7 +41,7 @@
   <include file="$(find nav_staff)/launch/xml/move_base_xu.launch.xml" />
 
   <!-- Laserscan topic -->
-  <arg name="scan_topic" default="/scan"/>
+  <arg name="scan_topic" default="/asus_scan"/>
   <arg name="scan_processing" default="true"/>
   <arg name="scan_height"      default="200"/>
    <!-- Factory-calibrated depth registration -->

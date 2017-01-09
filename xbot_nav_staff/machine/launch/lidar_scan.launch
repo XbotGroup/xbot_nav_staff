@@ -1,0 +1,10 @@
+<launch>
+    <arg name = "asus_topic" default = "/asus_scan" />
+    <arg name = "rplidar_topic" default = "/rplidar_scan" />
+
+    <include file="$(find rplidar_python)/launch/rplidar.launch.xml">
+        <arg name="rplidar_frame"  value="/laser" />
+        <remap from="scan" to="$(arg rplidar_topic)" />
+    </include>
+
+</launch>
