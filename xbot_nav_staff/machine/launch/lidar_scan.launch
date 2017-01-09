@@ -1,10 +1,12 @@
 <launch>
-    <arg name = "asus_topic" default = "/asus_scan" />
     <arg name = "rplidar_topic" default = "/rplidar_scan" />
+    <arg name="rplidar_frame" default="laser" />
 
-    <include file="$(find rplidar_python)/launch/rplidar.launch.xml">
-        <arg name="rplidar_frame"  value="/laser" />
-        <remap from="scan" to="$(arg rplidar_topic)" />
-    </include>
+    <node pkg="rplidar_python" type="rplidar_scan.py" name="rplidar" output="screen" respawn="true">
+        <param name="frame_id" value="$(arg rplidar_frame)" />
+        <param name="range_min" value="0.15"/>
+        <param name="range_max" value="6.0"/>
+        <param name="scan_topic" value="$(arg rplidar_topic)" />
+    </node>
 
 </launch>
