@@ -20,7 +20,7 @@
  <!-- Worker threads for the nodelet manager -->
  <arg name="num_worker_threads" default="4" />
 
- <arg name="scan_topic" default="scan"/>
+ <!--<arg name="scan_topic" default="scan"/>-->
 
  <include file="$(find machine)/launch/xml/asus_xtion_pro.launch.xml">
   <arg name="camera" value="$(arg camera)"/>
