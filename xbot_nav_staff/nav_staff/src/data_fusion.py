@@ -51,11 +51,11 @@ class fusion():
         source_frame = rospy.get_param('~source_frame')
 
         listener = tf.TransformListener()
-        now = rospy.Time.now() + rospy.Duration(1)
-        listener.waitForTransform(target_frame, source_frame, now, rospy.Duration(3.0))
+        now = rospy.Time.now()
+        listener.waitForTransform(target_frame, source_frame, now, rospy.Duration(2.0))
         print '0'
         (self.trans,self.rot)=listener.lookupTransform(target_frame, source_frame, now)
-
+        print '0.5'
 
     def rplidarCB(self, laser_message):
         print '1'
