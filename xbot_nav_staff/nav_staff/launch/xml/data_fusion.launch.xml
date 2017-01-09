@@ -1,0 +1,29 @@
+<launch>
+    <arg name = 'use_rplidar_topic'      default = '/rplidar_scan' />
+    <arg name = 'use_asus_topic'         default = '/asus_scan' />
+    <arg name = 'scan_topic'             default = '/scan' />
+
+    <arg name = 'target_frame'           default= 'laser' />
+    <arg name = 'source_frame'           default= 'camera_depth_frame' />
+    <arg name = 'fusion_data_frame'      default= 'global_scan' />
+
+    <arg name = 'PublishFrequency'       default= '0.016' />
+    <arg name = 'asus_max_range'         default= '4.0' />
+
+
+
+    <node pkg='nav_staff' type='data_fusion.py' name='data_fusion' output="screen">
+        <param name="use_rplidar_topic"         value="$(arg use_rplidar_topic)" />
+        <param name="use_asus_topic"            value="$(arg use_asus_topic)" />
+        <param name="scan_topic"                value="$(arg scan_topic)" />
+
+        <param name="target_frame"              value="$(arg target_frame)" />
+        <param name="source_frame"              value="$(arg source_frame)" />
+        <param name="fusion_data_frame"         value="$(arg fusion_data_frame)" />
+
+        <param name="PublishFrequency"          value="$(arg PublishFrequency)" />
+        <param name="asus_max_range"            value="$(arg asus_max_range)" />
+    </node>
+
+    <node pkg="tf" type="static_transform_publisher" name="data_fusion_broadcaster" args="0 0 0.6 0 0 0 1 /$(arg target_frame) /$(arg fusion_data_frame) 2000" />
+</launch>
