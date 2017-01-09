@@ -20,8 +20,7 @@ class ClearParams:
 class amcl_odom():
  def __init__(self):
   self.define()
-  time = rospy.Time.now() + rospy.Duration(1)
-  self.listener.waitForTransform(self.target_frame, self.source_frame, time, rospy.Duration(2))
+  self.listener.waitForTransform(self.target_frame, self.source_frame, rospy.Time(), rospy.Duration(2))
   while not rospy.is_shutdown():
    try:
     now = rospy.Time.now()
