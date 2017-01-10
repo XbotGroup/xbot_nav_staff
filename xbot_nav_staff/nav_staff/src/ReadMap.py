@@ -15,7 +15,7 @@ from nav_msgs.msg import OccupancyGrid
 import Image
 import copy
 from threading import Lock
-import maplib
+from PlanAlgrithmsLib import maplib
 import getpass
 from geometry_msgs.msg import PoseArray
 from nav_msgs.msg import MapMetaData
@@ -60,8 +60,6 @@ class grid_map():
  def MessPoses(self, poses):
   with self.locker:
    if len(poses.poses) > 0:
-    #self.Map.data = copy.deepcopy(self.init_map.data)
-    #print 'MessPoses'
     for pose in poses.poses:
      num = maplib.position_num(self.init_map, pose.position)
      self.Map.data[num] += 40
@@ -71,11 +69,9 @@ class grid_map():
      if num not in ModifyElement:
       ModifyElement.append(num)
    self.map_pub.publish(self.Map)
-   #rospy.loginfo('projection map loaded')
 
  def Reload(self, event):
   with self.locker:
-   #self.Map.data = copy.deepcopy(self.init_map.data)
    self.Map = self._map_(copy.deepcopy(self.Map))
    self.map_pub.publish(self.Map)
    #rospy.loginfo ('update map')
@@ -90,9 +86,7 @@ class grid_map():
    else:
     self.Map = self._map_(copy.deepcopy(self.Map))
     self.map_pub.publish(self.Map)
-   #print 'ModifyElement', ModifyElement, len(self.Map.data)
    self.PubMetadata()
-   #print maplib.get_effective_point(self.Map)[1]
 
  def _map_(self, map):
   global ModifyElement

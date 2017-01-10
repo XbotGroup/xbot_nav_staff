@@ -130,45 +130,35 @@ class BaseController:
                 self.count_cmds(cur_pose, cur_goal)
 
     def count_cmds(self, cur_pose, cur_goal):
-        print 'count cmds'
         Diff_x = round(cur_goal.x - cur_pose.position.x, 2)
         Diff_y = round(cur_goal.y - cur_pose.position.y, 2)
         cur_angle = CVlib.GetAngle(cur_pose.orientation)
         self.Vector(Diff_x, Diff_y, cur_angle)
 
     def Vector(self, Diff_x, Diff_y, cur_angle):
-        print 'Vector'
         goal_linear = numpy.sqrt(Diff_x**2 + Diff_y**2)
         cmd_vector = Twist()
         # anglar
         if Diff_x > 0 and Diff_y > 0:
             goal_angle = numpy.arctan(Diff_y/Diff_x)
-            # print '1'
         elif Diff_x < 0 and Diff_y >0:
             goal_angle = numpy.pi + numpy.arctan(Diff_y/Diff_x)
-            # print '2'
         elif Diff_x < 0 and Diff_y < 0:
             goal_angle = -numpy.pi + numpy.arctan(Diff_y/Diff_x)
-            # print '3'
         elif Diff_x > 0 and Diff_y < 0:
             goal_angle = numpy.arctan(Diff_y/Diff_x)
-            # print '4'
         elif Diff_x == 0 and Diff_y != 0:
             if Diff_y > 0:
                 goal_angle = numpy.pi/2.0
-                # print '5'
             elif Diff_y <0:
                 goal_angle = -numpy.pi/2.0
-                # print '6'
             else:
                 rospy.logerr('error type 1')
         elif Diff_y == 0 and Diff_x != 0:
             if Diff_x > 0:
                 goal_angle = 0.0
-                # print '7'
             elif Diff_x < 0:
                 goal_angle = -numpy.pi
-                # print '8'
             else:
                 rospy.logerr('error type 2')
         elif Diff_y == 0 and Diff_x == 0:
@@ -180,9 +170,6 @@ class BaseController:
 
         cmd_vector.angular.z = round(goal_angle - cur_angle, 3)
         cmd_vector.linear.x = round(goal_linear, 3)
-
-        print cmd_vector
-
         global cmd_queue
         cmd_queue.append(cmd_vector)
 
@@ -270,7 +257,7 @@ class BaseController:
                                 self.cmd_vel.linear.x = 0
                     cmd_pub.publish(cmd)
                 else:
-                    print '11'
+                    rospy.logerr('both linear and angular input is zero!')
 
 
     def linear_analyse(self, points):
@@ -289,22 +276,11 @@ class BaseController:
             pub.publish(result)
         return nodes
 
-
-
-
-
-
-
 if __name__ == '__main__':
     rospy.init_node('BaseController_X')
-
-    # try:
-
-    rospy.loginfo("initialization system")
-    BaseController()
-    ClearParams()
-
-    # except rospy.ROSInterruptException:
-
-    rospy.loginfo("node terminated.")
-
+    try:
+        rospy.loginfo("initialization system")
+        BaseController()
+        ClearParams()
+    except rospy.ROSInterruptException:
+        rospy.loginfo("node terminated.")

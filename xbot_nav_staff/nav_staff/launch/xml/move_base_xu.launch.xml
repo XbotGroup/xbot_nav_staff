@@ -5,6 +5,8 @@
     <arg name="OdomTopic"               value="/robot_position_in_map" />
     <arg name="MotionTopice"            value='cmd_vel_mux/input/smoother' />
 
+    <arg name="fixed_path"              default="True"/>
+
     <arg name="CmdTopice"               value='cmd_vel_mux/input/navi' />
     <include file="$(find nav_staff)/launch/xml/cmd_smoother.launch.xml">
         <arg name="MotionTopice"          value="$(arg MotionTopice)" />
@@ -21,9 +23,14 @@
     <arg name="AngularFree"             default="0.1745"/>
     <arg name="GoalTolerant"            default="0.01"/>
     <arg name="visual_test"             default="True"/>
+    <arg name="FixedPlanTopic"          default="/move_base/action_plan/fixed"/>
+
+    <arg if="$(arg fixed_path)" name="MovebasePlanTopic" value="$(arg FixedPlanTopic)" />
+    <arg unless="$(arg fixed_path)" name="MovebasePlanTopic" value="$(arg PlanTopic)" />
+
     <node pkg="nav_staff" type="base_controller.py" respawn="true" name="BaseController_X" output="screen">
 
-        <param name="PlanTopic"         value="$(arg PlanTopic)" />
+        <param name="PlanTopic"         value="$(arg MovebasePlanTopic)" />
         <param name="OdomTopic"         value="$(arg OdomTopic)" />
         <param name="MotionTopice"      value="$(arg MotionTopice)" />
 
@@ -39,6 +46,23 @@
 
         <param name="visual_test"       value="$(arg visual_test)" />
     </node>
+
+
+    <include if="$(arg fixed_path)" file="$(find nav_staff)/launch/xml/fixed_plan_maker.launch.xml" />
+
+    <!--&lt;!&ndash; plan fixer&ndash;&gt;-->
+    <!--<arg name="PositionFree" default="0.1" />-->
+    <!--<arg name="ActionPlanTopic" default="/move_base/action_plan" />-->
+    <!--<arg name="RawPlanTopic" default='/move_base/NavfnROS/plan' />-->
+
+    <!--<node pkg="nav_staff" type="plan_fixer.py" respawn="true" name="Planfixer" output="screen">-->
+        <!--<param name="RawPlanTopic" value="$(arg RawPlanTopic)"/>-->
+        <!--<param name="OdomTopic" value="$(arg OdomTopic)"/>-->
+
+        <!--<param name="PositionFree" value="$(arg PositionFree)"/>-->
+        <!--<param name="ActionPlanTopic" value="$(arg ActionPlanTopic)"/>-->
+        <!--<param name="GoalTopic" value="$(arg GoalTopic)"/>-->
+    <!--</node>-->
 
     <!--planner-->
     <arg name="MapTopic"                    default="/cost_plan_map" />

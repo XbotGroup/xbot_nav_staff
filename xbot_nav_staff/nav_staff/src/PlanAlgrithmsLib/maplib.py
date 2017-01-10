@@ -7,10 +7,13 @@ Copyright (c) 2015 Xu Zhihao (Howe).  All rights reserved.
 This program is free software; you can redistribute it and/or modify
 This programm is tested on kuboki base turtlebot. 
 """
-#import collections
+
 from geometry_msgs.msg import Point
 from visualization_msgs.msg import Marker
 import rospy
+import numpy
+import copy
+import PyKDL
 
 #返回有效区域的坐标集
 def get_effective_point(data):
@@ -25,6 +28,21 @@ def get_effective_point(data):
                 block_area.append(block)
             block=Point()
     return block_area
+
+
+# 返回有效区域的坐标集
+def get_clear_point(data):
+    map_matrix = [i for i in data.data]
+    clear_area = []
+    clear=Point()
+    for y in range(data.info.height):
+        for x in range(data.info.width):
+            if map_matrix[y * data.info.width + x] == 0:
+                clear.x = x*data.info.resolution + data.info.origin.position.x
+                clear.y = y*data.info.resolution + data.info.origin.position.y
+                clear_area.append(clear)
+            clear=Point()
+    return clear_area
 
 #视觉显示数据
 def visual_test(data, Type, color, scale):  # data=[point1,point2,point3...]###################visual_test
@@ -91,3 +109,36 @@ def position_num(map, position):
     pose_y = int(round((position.y - map.info.origin.position.y)/map.info.resolution))
     num = pose_y * map.info.width + pose_x
     return num
+
+def GradientDes(data):
+    Features = []
+    for i in range(len(data)):
+        if (len(data)-4)>i>=1:
+            SDerivative = round(data[i+3][0] - 3 * data[i+2][0] + 3 * data[i+1][0] - data[i][0], 3)
+            NSDerivative = round(data[i+4][0] - 3 * data[i+3][0] + 3 * data[i+2][0] - data[i+1][0], 3)
+            PSDerivative = round(data[i+2][0] - 3 * data[i+1][0] + 3 * data[i][0] - data[i-1][0], 3)
+            if SDerivative == 0 and NSDerivative * PSDerivative < 0 and PSDerivative > 0:#求凹函数的极致点
+                Features.append(data[i])
+        elif (len(data)-4)<=i<(len(data)-1):  #if data[i+3] data[i+4] data[i-1]not exist
+            PDerivative =  round(data[i+1][0] - data[i][0], 3)
+            if PDerivative == 0:
+                Features.append(data[i])
+        else:
+            Features.append(data[i])
+    return Features
+
+ ##转化坐标系
+def Trans(quaterion, Mapdata):
+    theata = quat_to_angle([quaterion.x,quaterion.y,quaterion.z,quaterion.w])
+    Tdata = []
+    Tpoint=Point()
+    for i in Mapdata:
+        Tpoint.x = i.x * numpy.cos(theata) + i.y * numpy.sin(theata)
+        Tpoint.y = i.y * numpy.cos(theata) - i.x * numpy.sin(theata)
+        Tdata.append(copy.deepcopy(Tpoint))
+    return Tdata
+
+#return RPY angle in rad
+def quat_to_angle(quat):
+    rot = PyKDL.Rotation.Quaternion(quat[0], quat[1], quat[2], quat[3])
+    return rot.GetRPY()[2]

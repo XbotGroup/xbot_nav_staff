@@ -32,12 +32,12 @@ class smoother():
         self.pre_cmd = None
 
     def CMDCB(self, cmd):
-        print 'cmd: ',cmd.linear.x
+        # print 'cmd: ',cmd.linear.x
         if self.pre_cmd == None:
             self.pre_cmd = cmd
         if abs(round(self.pre_cmd.linear.x - cmd.linear.x, 2)) >= 0.01:
             self.pre_cmd.linear.x += self._sign(self.pre_cmd.linear.x - cmd.linear.x)* 0.01
-            print 'pre_cmd: ',self.pre_cmd.linear.x, '\n'
+            # print 'pre_cmd: ',self.pre_cmd.linear.x, '\n'
         else:
             self.pre_cmd = cmd
         self.PUB(self.pre_cmd)
