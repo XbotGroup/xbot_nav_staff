@@ -16,11 +16,11 @@
 
     <!--base controller-->
     <arg name="PathAcc"                 default='5.0' />
-    <arg name="MaxLinearSP"             default='0.5' />
+    <arg name="MaxLinearSP"             default='0.4' />
     <arg name="MinLinearSP"             default='0.1' />
-    <arg name="AngularSP"               default='0.3' />
-    <arg name="AngularBias"             default='0.3' />
-    <arg name="AngularFree"             default="0.1745"/>
+    <arg name="AngularSP"               default='0.2' />
+    <arg name="AngularBias"             default='0.2' />
+    <arg name="AngularFree"             default="0.1"/>
     <arg name="GoalTolerant"            default="0.01"/>
     <arg name="visual_test"             default="True"/>
     <arg name="FixedPlanTopic"          default="/move_base/action_plan/fixed"/>
