@@ -5,7 +5,7 @@
     <arg name="OdomTopic"               value="/robot_position_in_map" />
     <arg name="MotionTopice"            value='cmd_vel_mux/input/smoother' />
 
-    <arg name="fixed_path"              default="True"/>
+    <arg name="fixed_path"              default="true"/>
 
     <arg name="CmdTopice"               value='cmd_vel_mux/input/navi' />
     <include file="$(find nav_staff)/launch/xml/cmd_smoother.launch.xml">
@@ -48,7 +48,7 @@
     </node>
 
 
-    <include if="$(arg fixed_path)" file="$(find nav_staff)/launch/xml/fixed_plan_maker.launch.xml" />
+    <!--<include if="$(arg fixed_path)" file="$(find nav_staff)/launch/xml/fixed_plan_maker.launch.xml" />-->
 
     <!--&lt;!&ndash; plan fixer&ndash;&gt;-->
     <!--<arg name="PositionFree" default="0.1" />-->
