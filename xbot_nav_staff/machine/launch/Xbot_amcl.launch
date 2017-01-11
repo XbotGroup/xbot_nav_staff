@@ -12,7 +12,7 @@
   <arg name="root_topic"   default="obstacles"/>
   <arg name="use_map_topic"   default="map"/>
   <arg name="initial_pose_x" default="1.32349405393"/>
-  <arg name="initial_pose_y" default="6.9282661443"/>
+  <arg name="initial_pose_y" default="6.928266:1443"/>
   <arg name="initial_pose_a" default="-1.1489145095412117"/>
 
   <node name="map_server" pkg="nav_staff" type="ReadMap.py" output="screen" respawn="true" >

@@ -145,7 +145,7 @@ class grid_map():
   self.occupied_thresh = int(self.occupied_thresh *  255)
   self.free_thresh = int(self.free_thresh * 255)
   
-  print self.free_thresh,self.occupied_thresh 
+  #print self.free_thresh,self.occupied_thresh 
   
   f=Image.open(self.filepath + self.image)
   (width, height) = f.size
@@ -171,7 +171,7 @@ class grid_map():
     elif resl.all() and not self.reverse:
      Map.data.append(100)  
     else:
-     print 1
+     #print 1
      Map.data.append(50)
   #print Map.info
   rospy.loginfo( 'Map readed' )
