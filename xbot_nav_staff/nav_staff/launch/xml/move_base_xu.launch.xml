@@ -1,7 +1,7 @@
 <launch>
     <arg name="GoalTopic"               value="/clicked_point" />
     <arg name="PlanTopic"               value="/move_base/action_plan" />
-    <arg name="PublishFrequency"        value="0.03" />
+    <arg name="PublishFrequency"        value="0.02" />
     <arg name="OdomTopic"               value="/robot_position_in_map" />
     <arg name="MotionTopice"            value='cmd_vel_mux/input/smoother' />
 

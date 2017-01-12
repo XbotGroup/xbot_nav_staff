@@ -127,9 +127,6 @@ class BaseController:
                 self.cmd_vel = Twist()
             else:
                 # rospy.loginfo('go to goal...')
-                print abs(round(cur_pose.position.x - cur_goal.x, 2)) <= self.GoalTolerant and abs(
-                        round(cur_pose.position.y - cur_goal.y, 2)) <= self.GoalTolerant
-
                 self.count_cmds(cur_pose, cur_goal)
 
     def count_cmds(self, cur_pose, cur_goal):
@@ -259,9 +256,9 @@ class BaseController:
                             else:
                                 # self.cmd_vel.linear.x = 0
                                 cmd.linear.x = 0
-                    cmd_pub.publish(cmd)
                 else:
                     rospy.logerr('both linear and angular input is zero!')
+                cmd_pub.publish(cmd)
 
 
     def linear_analyse(self, points):
