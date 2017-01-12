@@ -7,7 +7,7 @@
     <arg name = 'source_frame'           default= 'camera_depth_frame' />
     <arg name = 'fusion_data_frame'      default= 'global_scan' />
 
-    <arg name = 'PublishFrequency'       default= '0.016' />
+    <arg name = 'PublishFrequency'       default= '0.01' />
     <arg name = 'asus_max_range'         default= '4.0' />
 
 
@@ -25,5 +25,5 @@
         <param name="asus_max_range"            value="$(arg asus_max_range)" />
     </node>
 
-    <node pkg="tf" type="static_transform_publisher" name="data_fusion_broadcaster" args="0 0 0.6 0 0 0 1 /$(arg target_frame) /$(arg fusion_data_frame) 2000" />
+    <!--<node pkg="tf" type="static_transform_publisher" name="data_fusion_broadcaster" args="0 0 0.6 0 0 0 1 /$(arg target_frame) /$(arg fusion_data_frame) 2000" />-->
 </launch>
