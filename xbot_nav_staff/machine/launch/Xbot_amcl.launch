@@ -40,9 +40,9 @@
   <arg name="source_frame"               value="/base_footprint"/>
   <arg name="use_odom_topic"             value="/robot_position_in_map"/>
   <include file="$(find amcl_odom)/launch/robot_position_in_map.launch">
-   <param name="target_frame"   value="$(arg target_frame)"/>
-   <param name="source_frame"   value="$(arg source_frame)"/>
-   <param name="use_odom_topic"   value="$(arg use_odom_topic)"/>
+   <arg name="target_frame"   value="$(arg target_frame)"/>
+   <arg name="source_frame"   value="$(arg source_frame)"/>
+   <arg name="use_odom_topic"   value="$(arg use_odom_topic)"/>
   </include>
 
   <!--move base-->
