@@ -43,6 +43,8 @@ class smoother():
         # print 'cmd: ',cmd.linear.x
         if self.pre_cmd == None:
             self.pre_cmd = cmd
+        else:
+            pass
         if abs(round(self.pre_cmd.linear.x - cmd.linear.x, 2)) >= self.accsp:
             self.pre_cmd.linear.x += self._sign(self.pre_cmd.linear.x - cmd.linear.x)* self.accsp
             # print 'pre_cmd: ',self.pre_cmd.linear.x, '\n'
@@ -50,6 +52,8 @@ class smoother():
             self.pre_cmd = cmd
         if cmd.linear.x > self.maxsp:
             self.pre_cmd.linear.x = self.maxsp
+        else:
+            pass
         self.PUB(self.pre_cmd)
 
     def _sign(self, data):
