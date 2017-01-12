@@ -237,14 +237,14 @@ class BaseController:
                         cmd.angular.z = self.AngularSP
                 cmd_pub.publish(cmd)
             else:
-                if self.cmd_vel.angular.z != 0 or self.cmd_vel.linear.x != 0:
+                if round(self.cmd_vel.angular.z, 2) != 0 or round(self.cmd_vel.linear.x, 2) != 0:
                     cmd.angular.z = self.cmd_vel.angular.z
-                    if abs(self.cmd_vel.angular.z) < self.AngularFree:
+                    if abs(self.cmd_vel.angular.z) <= self.AngularFree:
                         if self.cmd_vel.linear.x >= self.PathAcc:
                             self.cmd_vel.linear.x = self.MaxLinearSP
                         else:
-                            if self.cmd_vel.linear.x > self.MaxLinearSP:
-                                cmd.linear.x = self.MaxLinearSP
+                            if self.cmd_vel.linear.x > self.MinLinearSP:
+                                cmd.linear.x = self.MinLinearSP
                             else:
                                 cmd.linear.x = self.cmd_vel.linear.x
                     else:
