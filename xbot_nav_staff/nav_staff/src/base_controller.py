@@ -248,7 +248,7 @@ class BaseController:
                             else:
                                 cmd.linear.x = self.cmd_vel.linear.x
                     else:
-                        if self.cmd_vel.linear.x > self.PathAcc:
+                        if self.cmd_vel.linear.x >= self.PathAcc:
                             self.cmd_vel.linear.x = self.MinLinearSP
                         else:
                             if self.cmd_vel.linear.x > self.GoalTolerant:
