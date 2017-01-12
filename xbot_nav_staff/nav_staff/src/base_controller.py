@@ -244,9 +244,10 @@ class BaseController:
                             self.cmd_vel.linear.x = self.MaxLinearSP
                         else:
                             if self.cmd_vel.linear.x > self.MinLinearSP:
-                                cmd.linear.x = self.MinLinearSP
+                                cmd.linear.x = self.MaxLinearSP
                             else:
-                                cmd.linear.x = self.cmd_vel.linear.x
+                                # cmd.linear.x = self.cmd_vel.linear.x
+                                cmd.linear.x = self.MinLinearSP
                     else:
                         if self.cmd_vel.linear.x >= self.PathAcc:
                             self.cmd_vel.linear.x = self.MinLinearSP
