@@ -15,8 +15,8 @@
     <!--<include file="$(find nav_staff)/launch/xml/safety_controller.launch.xml"/>-->    
 
     <!--base controller-->
-    <arg name="PathAcc"                 default='10.0' />
-    <arg name="MaxLinearSP"             default='0.4' />
+    <arg name="PathAcc"                 default='0.5' />
+    <arg name="MaxLinearSP"             default='0.3' />
     <arg name="MinLinearSP"             default='0.1' />
     <arg name="AngularSP"               default='0.2' />
     <arg name="AngularBias"             default='0.2' />

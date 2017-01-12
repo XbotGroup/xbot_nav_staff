@@ -89,13 +89,13 @@ class fusion():
     def asusCB(self, asus_message):
         self.asus_data = asus_message
         self.asus_data.ranges = [i if i <= self.asus_max_range else numpy.inf for i in asus_message.ranges]
-        self.data_fusion()
 
     def Pub_Data(self, data):
         pub_data = rospy.Publisher(self.scan_topic, LaserScan, queue_size=1)
         pub_data.publish(data)
 
     def PubLaserCB(self, event):
+        self.data_fusion()
         global LaserData
         if len(LaserData) > 0:
             self.data = LaserData.pop()
