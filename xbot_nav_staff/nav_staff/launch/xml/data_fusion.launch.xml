@@ -7,7 +7,7 @@
     <arg name = 'source_frame'           default= 'camera_depth_frame' />
     <arg name = 'fusion_data_frame'      default= 'global_scan' />
 
-    <arg name = 'PublishFrequency'       default= '0.01' />
+    <arg name = 'PublishFrequency'       default= '0.2' />
     <arg name = 'asus_max_range'         default= '4.0' />
 
 
