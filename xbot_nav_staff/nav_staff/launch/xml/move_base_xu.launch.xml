@@ -7,16 +7,11 @@
 
     <arg name="fixed_path"              default="true"/>
 
-    <arg name="CmdTopice"               value='cmd_vel_mux/input/navi' />
-    <include file="$(find nav_staff)/launch/xml/cmd_smoother.launch.xml">
-        <arg name="MotionTopice"          value="$(arg MotionTopice)" />
-        <arg name="CmdTopice"             value="$(arg CmdTopice)" />
-    </include>
     <!--<include file="$(find nav_staff)/launch/xml/safety_controller.launch.xml"/>-->    
 
     <!--base controller-->
-    <arg name="PathAcc"                 default='0.5' />
-    <arg name="MaxLinearSP"             default='0.3' />
+    <arg name="PathAcc"                 default='0.4' />
+    <arg name="MaxLinearSP"             default='0.4' />
     <arg name="MinLinearSP"             default='0.1' />
     <arg name="AngularSP"               default='0.2' />
     <arg name="AngularBias"             default='0.2' />
@@ -47,6 +42,14 @@
         <param name="visual_test"       value="$(arg visual_test)" />
     </node>
 
+    <arg name="CmdTopice"               value='cmd_vel_mux/input/navi' />
+    <arg name="accsp"                   value='0.005' />
+    <include file="$(find nav_staff)/launch/xml/cmd_smoother.launch.xml">
+        <arg name="MotionTopice"          value="$(arg MotionTopice)" />
+        <arg name="CmdTopice"             value="$(arg CmdTopice)" />
+        <arg name='MaxLinearSP'           value='$(arg MaxLinearSP)' />
+        <arg name='accsp'                 value='$(arg accsp)' />
+    </include>
 
     <!--<include if="$(arg fixed_path)" file="$(find nav_staff)/launch/xml/fixed_plan_maker.launch.xml" />-->
 
