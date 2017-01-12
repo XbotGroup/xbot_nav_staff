@@ -127,6 +127,9 @@ class BaseController:
                 self.cmd_vel = Twist()
             else:
                 # rospy.loginfo('go to goal...')
+                print abs(round(cur_pose.position.x - cur_goal.x, 2)) <= self.GoalTolerant and abs(
+                        round(cur_pose.position.y - cur_goal.y, 2)) <= self.GoalTolerant
+
                 self.count_cmds(cur_pose, cur_goal)
 
     def count_cmds(self, cur_pose, cur_goal):
@@ -237,25 +240,25 @@ class BaseController:
                         cmd.angular.z = self.AngularSP
                 cmd_pub.publish(cmd)
             else:
-                if round(self.cmd_vel.angular.z, 2) != 0 or round(self.cmd_vel.linear.x, 2) != 0:
+                if round(abs(self.cmd_vel.angular.z), 2) != 0 or round(self.cmd_vel.linear.x, 2) != 0:
                     cmd.angular.z = self.cmd_vel.angular.z
                     if abs(self.cmd_vel.angular.z) <= self.AngularFree:
                         if self.cmd_vel.linear.x >= self.PathAcc:
-                            self.cmd_vel.linear.x = self.MaxLinearSP
+                            cmd.linear.x = self.MaxLinearSP
                         else:
                             if self.cmd_vel.linear.x > self.MinLinearSP:
-                                cmd.linear.x = self.MaxLinearSP
-                            else:
-                                # cmd.linear.x = self.cmd_vel.linear.x
                                 cmd.linear.x = self.MinLinearSP
+                            else:
+                                cmd.linear.x = self.cmd_vel.linear.x
                     else:
                         if self.cmd_vel.linear.x >= self.PathAcc:
-                            self.cmd_vel.linear.x = self.MinLinearSP
+                            cmd.linear.x = self.MinLinearSP
                         else:
-                            if self.cmd_vel.linear.x > self.GoalTolerant:
+                            if self.cmd_vel.linear.x >= self.GoalTolerant:
                                 cmd.linear.x = self.cmd_vel.linear.x
                             else:
-                                self.cmd_vel.linear.x = 0
+                                # self.cmd_vel.linear.x = 0
+                                cmd.linear.x = 0
                     cmd_pub.publish(cmd)
                 else:
                     rospy.logerr('both linear and angular input is zero!')
