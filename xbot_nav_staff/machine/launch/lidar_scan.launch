@@ -1,7 +1,7 @@
 <launch>
     <arg name = "use_rplidar_only" default = "false" />
     <arg name = "use_asus_only" default = "false" />
-    <arg name = "use_asus_only" default = "true" />
+    <arg name = "fusion_data" default = "true" />
 
 
     <arg if="$(arg use_rplidar_only)" name="rplidar_topic" value="/scan" />
