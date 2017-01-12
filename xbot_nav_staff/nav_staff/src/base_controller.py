@@ -126,7 +126,7 @@ class BaseController:
                 rospy.loginfo('arrive goal')
                 self.cmd_vel = Twist()
             else:
-                rospy.loginfo('go to goal...')
+                # rospy.loginfo('go to goal...')
                 self.count_cmds(cur_pose, cur_goal)
 
     def count_cmds(self, cur_pose, cur_goal):
