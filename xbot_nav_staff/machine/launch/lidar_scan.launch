@@ -10,7 +10,7 @@
     <arg if="$(arg use_asus_only)" name="asus_topic" value="/scan" />
     <arg unless="$(arg use_asus_only)" name="asus_topic" value="/asus_scan" />
 
-    <arg name = "rplidar_topic" default = "/scan" />
+    <!--<arg name = "rplidar_topic" default = "/scan" />-->
 
     <arg name="rplidar_frame" default="laser" />
 

@@ -1,7 +1,11 @@
 <!--this file is demo for nav with auto obstacle avoidance -->
 <launch>
  
-  <include file="$(find machine)/launch/lidar_scan.launch" />
+  <include file="$(find machine)/launch/lidar_scan.launch" >
+    <arg name = "use_rplidar_only" value = "false" />
+    <arg name = "use_asus_only" value = "false" />
+    <arg name = "fusion_data" value = "true" />
+  </include>
   
   <param name="use_sim_time" value="false" />
   
@@ -28,6 +32,7 @@
    <arg name="initial_pose_x"   value="$(arg initial_pose_x)"/>
    <arg name="initial_pose_y"   value="$(arg initial_pose_y)"/>
    <arg name="initial_pose_a"   value="$(arg initial_pose_a)"/>
+   <arg name="amcl_frequency"   value="0.25"/>
   </include>
 
   <!--amcl odom-->
