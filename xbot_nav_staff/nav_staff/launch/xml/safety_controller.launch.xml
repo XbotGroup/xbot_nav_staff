@@ -1,5 +1,5 @@
 <launch>
-    <arg name = 'InfraTopic'        default = '/sensors/dock_ir' />
+    <arg name = 'InfraTopic'        default = '/sensor/echo_data' />
     <arg name = 'NaviTopic'         default = '/cmd_vel_mux/input/navi' />
     <arg name = 'TeleTopic'         default = '/cmd_vel_mux/input/teleop' />
     <arg name = 'accsp'             default = '0.005' />
