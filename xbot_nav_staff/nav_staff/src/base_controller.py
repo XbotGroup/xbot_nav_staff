@@ -223,6 +223,7 @@ class BaseController:
         cmd_pub = rospy.Publisher(self.MotionTopice, Twist, queue_size=1)
         if self.cmd_vel != Twist():
             if abs(self.cmd_vel.angular.z) > self.AngularBias:
+                print '>AngularBias'
                 if abs(self.cmd_vel.angular.z) < numpy.pi:
                     if self.cmd_vel.angular.z > 0:
                         cmd.angular.z = self.AngularSP
@@ -235,6 +236,7 @@ class BaseController:
                         cmd.angular.z = self.AngularSP
                 cmd_pub.publish(cmd)
             else:
+                print '<AngularBias'
                 cmd.angular.z = self.cmd_vel.angular.z
                 if round(abs(self.cmd_vel.angular.z), 2) != 0 or round(self.cmd_vel.linear.x, 2) != 0:
                     if abs(self.cmd_vel.angular.z) <= self.AngularFree:
