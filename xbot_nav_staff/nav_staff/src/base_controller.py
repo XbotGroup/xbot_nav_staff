@@ -215,7 +215,8 @@ class BaseController:
             self.path = PlanPath.poses
             global Tasks
             segment = [i.pose.position for i in self.path]
-            Tasks = self.linear_analyse(segment)
+            if len(segment) >= 2:
+                Tasks = self.linear_analyse(segment)
 
     def PubcmdCB(self, data):
         global cmd_queue
