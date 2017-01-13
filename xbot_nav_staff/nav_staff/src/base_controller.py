@@ -27,7 +27,6 @@ from geometry_msgs.msg import Quaternion
 Tasks = list()
 cmd_queue = collections.deque(maxlen=1)
 
-
 class ClearParams:
     def __init__(self):
         rospy.delete_param('~PlanTopic')
@@ -45,8 +44,6 @@ class ClearParams:
         rospy.delete_param('~GoalTolerant')
 
         rospy.delete_param('~visual_test')
-
-
 
 class BaseController:
     def __init__(self):
@@ -238,8 +235,8 @@ class BaseController:
                         cmd.angular.z = self.AngularSP
                 cmd_pub.publish(cmd)
             else:
+                cmd.angular.z = self.cmd_vel.angular.z
                 if round(abs(self.cmd_vel.angular.z), 2) != 0 or round(self.cmd_vel.linear.x, 2) != 0:
-                    cmd.angular.z = self.cmd_vel.angular.z
                     if abs(self.cmd_vel.angular.z) <= self.AngularFree:
                         if self.cmd_vel.linear.x >= self.PathAcc:
                             cmd.linear.x = self.MaxLinearSP
