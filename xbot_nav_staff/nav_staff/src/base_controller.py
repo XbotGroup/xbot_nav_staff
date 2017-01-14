@@ -164,10 +164,10 @@ class BaseController:
             rospy.logwarn('Diff_x Diff_y ==0')
         else:
             rospy.logerr('unkown ')
-        if -numpy.pi < cur_angle < -numpy.pi/2.0:
-            cur_angle = -numpy.pi - cur_angle
-            if numpy.pi > goal_angle > numpy.pi / 2.0:
-                goal_angle = numpy.pi - goal_angle
+        # if -numpy.pi < cur_angle < -numpy.pi/2.0:
+        #     cur_angle = -numpy.pi - cur_angle
+        #     if numpy.pi > goal_angle > numpy.pi / 2.0:
+        #         goal_angle = numpy.pi - goal_angle
 
         cmd_vector.angular.z = round(goal_angle - cur_angle, 3)
         cmd_vector.linear.x = round(goal_linear, 3)
