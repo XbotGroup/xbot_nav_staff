@@ -13,9 +13,9 @@ This programm is tested on kuboki base turtlebot.
 """
 import rospy
 from sensor_msgs.msg import LaserScan
-import tf
 import numpy
 import collections
+from threading import Lock
 
 LaserData = collections.deque(maxlen=1)
 
@@ -52,7 +52,7 @@ class fusion():
         self.use_asus_topic = rospy.get_param('~use_asus_topic')
 
         if not rospy.has_param('~scan_topic'):
-             rospy.set_param('~scan_topic', '/scan')
+             rospy.set_param('~scan_topic', '/scan_test')
         self.scan_topic = rospy.get_param('~scan_topic')
 
         if not rospy.has_param('~target_frame'):
@@ -81,14 +81,17 @@ class fusion():
         self.asus_data = None
         self.seq = 0
         self.data = None
+        self.locker = Lock()
 
     def rplidarCB(self, laser_message):
-        self.laser_data = laser_message
-        self.laser_data.ranges = [i for i in laser_message.ranges]
+        with self.locker:
+            self.laser_data = laser_message
+            self.laser_data.ranges = [i for i in laser_message.ranges]
 
     def asusCB(self, asus_message):
-        self.asus_data = asus_message
-        self.asus_data.ranges = [i if i <= self.asus_max_range else numpy.inf for i in asus_message.ranges]
+        with self.locker:
+            self.asus_data = asus_message
+            self.asus_data.ranges = [i if i <= self.asus_max_range else numpy.inf for i in asus_message.ranges]
 
     def Pub_Data(self, data):
         pub_data = rospy.Publisher(self.scan_topic, LaserScan, queue_size=1)

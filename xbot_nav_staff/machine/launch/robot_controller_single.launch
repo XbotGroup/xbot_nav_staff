@@ -12,6 +12,8 @@
    <!--用户交互-->
    <include file="$(find marker)/launch/ui_marker.launch" />
 
+   <include file="$(find nav_staff)/launch/xml/fixed_plan_maker.launch.xml"/>
+
    <!--障碍物报警机制-->
    <!--<include file="$(find obstacle_warning)/launch/ObstaclesWarning.launch" />-->
    <!--<include file='$(find skeleton_detection)/launch/tracker.launch' />-->
