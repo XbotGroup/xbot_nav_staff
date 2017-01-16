@@ -13,7 +13,7 @@
   <param name="use_map_topic" value="$(arg use_map_topic)"/>
 
   <param name="update_min_d"    value="0.4"/>
-  <param name="update_min_a"    value="0.6"/>
+  <param name="update_min_a"    value="0.01"/>
 
   <!-- Publish scans from best pose at a max of 10 Hz -->
   <param name="odom_model_type" value="diff"/>
