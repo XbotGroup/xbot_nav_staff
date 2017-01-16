@@ -1,7 +1,7 @@
 <launch>
 
    <!--启动导航目标策略-->
-   <include file="$(find tasks)/launch/go_tasks2.launch" />
+   <!--<include file="$(find tasks)/launch/go_tasks2.launch" />-->
 
    <!--启动机器人标记-->
    <include file="$(find marker)/launch/robot_uni_marker.launch" >
