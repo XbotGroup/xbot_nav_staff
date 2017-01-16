@@ -39,3 +39,4 @@ def get_store_path(data):
             pose.pose.orientation.w = data['%s'%i][6]
             path.append(pose)
         return path
+

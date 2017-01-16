@@ -5,7 +5,7 @@
     <arg name="OdomTopic"               value="/robot_position_in_map" />
     <arg name="MotionTopice"            value='cmd_vel_mux/input/smoother' />
 
-    <arg name="fixed_path"              default="false"/>
+    <arg name="fixed_path"              default="true"/>
 
     <include file="$(find nav_staff)/launch/xml/safety_controller.launch.xml"/>
 
