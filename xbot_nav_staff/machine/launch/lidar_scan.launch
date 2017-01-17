@@ -48,7 +48,7 @@
             <arg name = 'fusion_data_frame'      value= 'global_scan' />
 
             <arg name = 'PublishFrequency'       value= '0.01' />
-            <arg name = 'asus_max_range'         value= '3.5' />
+            <arg name = 'asus_max_range'         value= '3.0' />
         </include>
     </group>
 
