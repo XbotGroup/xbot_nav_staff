@@ -1,0 +1,40 @@
+<launch>
+ <arg name="use_map_topic"         default="/map_raw"/>
+ <arg name="use_scan_topic"        default="/scan"/>
+ <arg name="use_initialpose_topic" default="/initialpose"/>
+ <arg name="AmclMapTopic"          default="/amcl_map"/>
+ <arg name="target_frame"          default="/odom"/>
+ <arg name="source_frame"          default="/base_link"/>
+
+ <arg name="initial_position_x"    default="0.0"/>
+ <arg name="initial_position_y"    default="0.0"/>
+ <arg name="initial_position_z"    default="0.0"/>
+
+ <arg name="initial_orientation_x" default="0.0"/>
+ <arg name="initial_orientation_y" default="0.0"/>
+ <arg name="initial_orientation_z" default="0.0"/>
+ <arg name="initial_orientation_w" default="1.0"/>
+
+ <!--<arg name="amcl_frequency"        default="1.0"/>-->
+
+ <node pkg="nav_staff"   type="amcl_adapted.py"    name="amcl">
+  <param name="use_map_topic"         value="$(arg use_map_topic)"/>
+  <param name="use_scan_topic"        value="$(arg use_scan_topic)"/>
+  <param name="use_initialpose_topic" value="$(arg use_initialpose_topic)"/>
+  <param name="AmclMapTopic"          value="$(arg AmclMapTopic)"/>
+  <param name="target_frame"          value="$(arg target_frame)"/>
+  <param name="source_frame"          value="$(arg source_frame)"/>
+
+  <param name="initial_position_x"          value="$(arg initial_position_x)"/>
+  <param name="initial_position_y"          value="$(arg initial_position_y)"/>
+  <param name="initial_position_z"          value="$(arg initial_position_z)"/>
+
+  <param name="initial_orientation_x"          value="$(arg initial_orientation_x)"/>
+  <param name="initial_orientation_y"          value="$(arg initial_orientation_y)"/>
+  <param name="initial_orientation_z"          value="$(arg initial_orientation_z)"/>
+  <param name="initial_orientation_w"          value="$(arg initial_orientation_w)"/>
+
+  <!--<param name="amcl_frequency"          value="$(arg amcl_frequency)"/>-->
+
+ </node>
+</launch>

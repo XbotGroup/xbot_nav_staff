@@ -93,7 +93,7 @@ class JPS():
     def get_map(self, map_message):
         self.mapinfo = map_message.info
         self.JPS_map = map_message.data
-        rospy.loginfo('received updata map...')
+        # rospy.loginfo('received updata map...')
 
     def get_path(self, end, start):
         rospy.loginfo('starting gernerating plan')
@@ -118,14 +118,14 @@ class JPS():
                 # return path
                 return self.get_full_path(path)
             else:
-                rospy.logwarn('Unvalid Goal No Path founded')
+                rospy.logwarn('Unvalid Goal Nso Path founded')
                 return None
         else:
             rospy.logwarn('waiting for map... ')
             return None
 
     def JPS_(self):
-        # print 'start JPS algrithm'
+        rospy.loginfo('start JPS algrithm')
         if self.JPS_map != None:
             self.field = [i for i in self.JPS_map]
             self.field[self.start_from] = self.ORIGIN
@@ -145,6 +145,7 @@ class JPS():
                     self.ADD_JUMPPOINT(self.explore_diagonal(node, -1, 1))
                     self.ADD_JUMPPOINT(self.explore_diagonal(node, -1, -1))
                 except FoundPath:
+                    rospy.loginfo('found path')
                     return self.generate_path_jump_point()
             # print 'end JPS algrithm'
         else:

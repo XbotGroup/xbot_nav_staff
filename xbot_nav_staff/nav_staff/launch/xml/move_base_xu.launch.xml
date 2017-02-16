@@ -6,6 +6,10 @@
     <arg name="MotionTopice"            value='cmd_vel_mux/input/smoother' />
 
     <arg name="fixed_path"              default="true"/>
+    <arg name="use_cost_map"            default="true"/>
+
+    <arg name="potential_field"        value="12" />
+
 
     <include file="$(find nav_staff)/launch/xml/safety_controller.launch.xml"/>
 
@@ -82,20 +86,21 @@
         <param name="detect_scale"            value="$(arg detect_scale)" />
     </node>
 
-    <!--cost plan map-->
-    <arg name="obstacle_thread"         value="80" />
-    <arg name="root_topic"              value="/test_obstacles" />
-    <arg name="devergency_scale"        value="7" />
-    <arg name="use_map_topic"           value="/map" />
-    <arg name="publish_hz"              value="0.01" />
-    <arg name="use_plan_map_topic"      value="/cost_plan_map" />
-    <include file="$(find nav_staff)/launch/xml/cost_plan_map.launch.xml">
-        <arg name="obstacle_thread"       value="$(arg obstacle_thread)"/>
-        <arg name="root_topic"            value="$(arg root_topic)"/>
-        <arg name="devergency_scale"      value="$(arg devergency_scale)"/>
-        <arg name="use_map_topic"         value="$(arg use_map_topic)"/>
-        <arg name="publish_hz"            value="$(arg publish_hz)"/>
-        <arg name="use_plan_map_topic"    value="$(arg use_plan_map_topic)"/>
-    </include>
-
+    <!--cost map-->
+    <group if="$(arg use_cost_map)"/>
+        <arg name="obstacle_thread"         value="70" />
+        <arg name="root_topic"              value="/test_obstacles" />
+        <arg name="devergency_scale"        value="$(arg potential_field)" />
+        <arg name="use_map_topic"           value="/map" />
+        <arg name="update_hz"               value="0.01" />
+        <arg name="use_plan_map_topic"      value="/cost_plan_map" />
+        <include file="$(find nav_staff)/launch/xml/cost_map.launch.xml">
+            <arg name="obstacle_thread"       value="$(arg obstacle_thread)"/>
+            <arg name="root_topic"            value="$(arg root_topic)"/>
+            <arg name="devergency_scale"      value="$(arg devergency_scale)"/>
+            <arg name="use_map_topic"         value="$(arg use_map_topic)"/>
+            <arg name="update_hz"             value="$(arg update_hz)"/>
+            <arg name="use_plan_map_topic"    value="$(arg use_plan_map_topic)"/>
+        </include>
+    <group/>
 </launch>

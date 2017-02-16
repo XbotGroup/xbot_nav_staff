@@ -169,7 +169,7 @@ class BaseController:
             angle_cmd = -numpy.pi*2 + angle_cmd
         if angle_cmd < -numpy.pi:
             angle_cmd = numpy.pi * 2 + angle_cmd
-        print angle_cmd, round(goal_angle - cur_angle, 3)
+        # print angle_cmd, round(goal_angle - cur_angle, 3)
         cmd_vector.angular.z = angle_cmd
         cmd_vector.linear.x = round(goal_linear, 3)
         global cmd_queue

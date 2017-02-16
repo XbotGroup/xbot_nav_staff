@@ -206,83 +206,86 @@ class CostPlanMap():
         return map_
 
     def ReBuildMapCB(self, proj_msg):
-        with self.locker:
-            global init
-            if init:
-                if len(proj_msg.poses) > 0:
-                    JPS_map = [i for i in self.JPS_map_init]
-                    for pose in proj_msg.poses:
-                        num = maplib.position_num(self.init_map, pose.position)
-                        JPS_map[num] = 0
-                        for n in range(self.obstacle_scale):
-                            JPS_map[num] += 10
-                            JPS_map[num+n] += 30
-                            JPS_map[num-n] += 30
-                            JPS_map[num+n*self.mapinfo.width] += 30
-                            JPS_map[num-n*self.mapinfo.width] += 30
-                            JPS_map[num+n+n*self.mapinfo.width] += 30
-                            JPS_map[num+n-n*self.mapinfo.width] += 30
-                            JPS_map[num-n+n*self.mapinfo.width] += 30
-                            JPS_map[num-n-n*self.mapinfo.width] += 30
-                            if JPS_map[num] >= 100:
-                                JPS_map[num] = 100
-                            if JPS_map[num+n] >= 100:
-                                JPS_map[num+n] -= 30
-                            if JPS_map[num-n] >= 100:
-                                JPS_map[num-n] -= 30
-                            if JPS_map[num+n*self.mapinfo.width] >= 100:
-                                JPS_map[num+n*self.mapinfo.width] -= 30
-                            if JPS_map[num-n*self.mapinfo.width] >= 100:
-                                JPS_map[num-n*self.mapinfo.width] -= 30
-                            if JPS_map[num+n+n*self.mapinfo.width] >= 100:
-                                JPS_map[num+n+n*self.mapinfo.width] -= 30
-                            if JPS_map[num+n-n*self.mapinfo.width] >= 100:
-                                JPS_map[num+n-n*self.mapinfo.width] -= 30
-                            if JPS_map[num-n+n*self.mapinfo.width] >= 100:
-                                JPS_map[num-n+n*self.mapinfo.width] -= 30
-                            if JPS_map[num-n-n*self.mapinfo.width] >= 100:
-                                JPS_map[num-n-n*self.mapinfo.width] -= 30
+        # with self.locker:
+        global init
+        if init:
+            if len(proj_msg.poses) > 0:
+                JPS_map = [i for i in self.JPS_map_init]
+                for pose in proj_msg.poses:
+                    num = maplib.position_num(self.init_map, pose.position)
+                    JPS_map[num] = 0
+                    for n in range(self.obstacle_scale):
+                        JPS_map[num] += 10
+                        JPS_map[num+n] += 30
+                        JPS_map[num-n] += 30
+                        JPS_map[num+n*self.mapinfo.width] += 30
+                        JPS_map[num-n*self.mapinfo.width] += 30
+                        JPS_map[num+n+n*self.mapinfo.width] += 30
+                        JPS_map[num+n-n*self.mapinfo.width] += 30
+                        JPS_map[num-n+n*self.mapinfo.width] += 30
+                        JPS_map[num-n-n*self.mapinfo.width] += 30
+                        if JPS_map[num] >= 100:
+                            JPS_map[num] = 100
+                        if JPS_map[num+n] >= 100:
+                            JPS_map[num+n] -= 30
+                        if JPS_map[num-n] >= 100:
+                            JPS_map[num-n] -= 30
+                        if JPS_map[num+n*self.mapinfo.width] >= 100:
+                            JPS_map[num+n*self.mapinfo.width] -= 30
+                        if JPS_map[num-n*self.mapinfo.width] >= 100:
+                            JPS_map[num-n*self.mapinfo.width] -= 30
+                        if JPS_map[num+n+n*self.mapinfo.width] >= 100:
+                            JPS_map[num+n+n*self.mapinfo.width] -= 30
+                        if JPS_map[num+n-n*self.mapinfo.width] >= 100:
+                            JPS_map[num+n-n*self.mapinfo.width] -= 30
+                        if JPS_map[num-n+n*self.mapinfo.width] >= 100:
+                            JPS_map[num-n+n*self.mapinfo.width] -= 30
+                        if JPS_map[num-n-n*self.mapinfo.width] >= 100:
+                            JPS_map[num-n-n*self.mapinfo.width] -= 30
 
-                            if JPS_map[num] == 100:
-                                break
-                        global ModifyElement
-                        if num not in ModifyElement:
-                            ModifyElement.append(num)
-                    # print '\n'
-                    # for i in range(self.obstacle_scale):
-                    #     print i
-                    #     print JPS_map[num + n],JPS_map[num-n],JPS_map[num+n+n*self.mapinfo.width],JPS_map[num+n-n*self.mapinfo.width],JPS_map[num-n+n*self.mapinfo.width],JPS_map[num-n-n*self.mapinfo.width]
-                    # print '\n'
-                    self.Pubdata.append(JPS_map)
-            else:
-                rospy.logwarn('waiting for init map')
+                        if JPS_map[num] == 100:
+                            break
+                    global ModifyElement
+                    if num not in ModifyElement:
+                        ModifyElement.append(num)
+                # print '\n'
+                # for i in range(self.obstacle_scale):
+                #     print i
+                #     print JPS_map[num + n],JPS_map[num-n],JPS_map[num+n+n*self.mapinfo.width],JPS_map[num+n-n*self.mapinfo.width],JPS_map[num-n+n*self.mapinfo.width],JPS_map[num-n-n*self.mapinfo.width]
+                # print '\n'
+                self.Pubdata.append(JPS_map)
+        else:
+            rospy.logwarn('waiting for init map')
 
     def PubCB(self, event):
-        with self.locker:
-            if len(self.Pubdata) > 0:
-                # time5 = time.time()
-                self.pub_map = OccupancyGrid()
-                self.pub_map.header.stamp = rospy.Time.now()
-                self.pub_map.header.seq = self.seq
-                self.seq += 1
-                self.pub_map.header.frame_id = 'map'
-                self.pub_map.info = self.mapinfo
-                data = self.Pubdata.pop()
-                if len(data) == self.mapinfo.height * self.mapinfo.width:
-                    self.pub_map.data = data
-                else:
-                    for j in range(self.mapinfo.height):
-                        self.pub_map.data.extend(data[j])
-                # time6 = time.time()
-                # print '\nestablish map data spend: ', time6 - time5
-                pub = rospy.Publisher(self.pub_map_topic, OccupancyGrid, queue_size=1)
-                pub.publish(self.pub_map)
-                # rospy.loginfo('updata map')
-            # else:
-            #     pub = rospy.Publisher(self.pub_map_topic, OccupancyGrid, queue_size=1)
-            #     self.pub_map.header.stamp = rospy.Time.now()
-            #     pub.publish(self.pub_map)
-                #rospy.loginfo('holding map')
+        # with self.locker:
+        if len(self.Pubdata) > 0:
+            # time5 = time.time()
+            # global init
+            # if init:
+            #     rospy.loginfo('generate cost map')
+            self.pub_map = OccupancyGrid()
+            self.pub_map.header.stamp = rospy.Time.now()
+            self.pub_map.header.seq = self.seq
+            self.seq += 1
+            self.pub_map.header.frame_id = 'map'
+            self.pub_map.info = self.mapinfo
+            data = self.Pubdata.pop()
+            if len(data) == self.mapinfo.height * self.mapinfo.width:
+                self.pub_map.data = data
+            else:
+                for j in range(self.mapinfo.height):
+                    self.pub_map.data.extend(data[j])
+            # time6 = time.time()
+            # print '\nestablish map data spend: ', time6 - time5
+            pub = rospy.Publisher(self.pub_map_topic, OccupancyGrid, queue_size=1)
+            pub.publish(self.pub_map)
+            # rospy.loginfo('updata map')
+        else:
+            pub = rospy.Publisher(self.pub_map_topic, OccupancyGrid, queue_size=1)
+            self.pub_map.header.stamp = rospy.Time.now()
+            pub.publish(self.pub_map)
+            # rospy.loginfo('holding map')
 
     # def Clear(self, event):
     #     with self.locker:

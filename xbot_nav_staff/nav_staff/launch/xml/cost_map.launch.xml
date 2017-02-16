@@ -3,14 +3,14 @@
     <arg name="root_topic"          default="/test_obstacles"/>
     <arg name="devergency_scale"    default="5"/>
     <arg name="use_map_topic"       default="/map"/>
-    <arg name="publish_hz"          default="0.001"/>
+    <arg name="update_hz"          default="0.01"/>
     <arg name="use_plan_map_topic"  default="/cost_plan_map"/>
     <node pkg="nav_staff" type="costplan_map.py" respawn="true" name="cost_map" output="screen">
         <param name="obstacle_thread"      type="int"           value="$(arg obstacle_thread)"/>
         <param name="root_topic"           type="str"           value="$(arg root_topic)"/>
         <param name="devergency_scale"     type="int"           value="$(arg devergency_scale)"/>
         <param name="use_map_topic"        type="str"           value="$(arg use_map_topic)"/>
-        <param name="publish_hz"           type="double"        value="$(arg publish_hz)"/>
+        <param name="publish_hz"           type="double"        value="$(arg update_hz)"/>
         <param name="use_plan_map_topic"   type="str"           value="$(arg use_plan_map_topic)"/>
     </node>
 </launch>

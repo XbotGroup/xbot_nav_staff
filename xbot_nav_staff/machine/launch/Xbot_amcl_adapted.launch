@@ -1,0 +1,86 @@
+<!--this file is demo for nav with auto obstacle avoidance -->
+<launch>
+ 
+    <!--<include file="$(find machine)/launch/lidar_scan.launch" >-->
+        <!--<arg name = "use_rplidar_only" value = "false" />-->
+        <!--<arg name = "use_asus_only" value = "false" />-->
+        <!--<arg name = "fusion_data" value = "true" />-->
+    <!--</include>-->
+
+      <!-- Laserscan topic -->
+    <arg name="scan_processing" default="true"/>
+    <arg name="scan_height"      default="200"/>
+    <arg name="camera"      default="camera"/>
+    <arg name="asus_topic"      default="/scan"/>
+    <!--Laserscan-->
+    <group if="$(arg scan_processing)">
+        <node pkg="nodelet" type="nodelet" name="depthimage_to_laserscan" args="load depthimage_to_laserscan/DepthImageToLaserScanNodelet $(arg camera)/$(arg camera)_nodelet_manager">
+            <param name="scan_height" value="$(arg scan_height)" />
+            <param name="output_frame_id" value="/$(arg camera)_depth_frame"/>
+            <param name="range_min" value="0.2"/>
+            <remap from="image" to="$(arg camera)/depth_registered/image_raw"/>
+            <remap from="scan" to="$(arg asus_topic)"/>
+            <remap from="$(arg camera)/image" to="$(arg camera)/depth_registered/image_raw"/>
+            <remap from="$(arg camera)/scan" to="$(arg asus_topic)"/>
+        </node>
+    </group>
+
+    <!--<param name="use_sim_time" value="false" />-->
+  
+  <!--map saver-->
+    <arg name="map_path" default="$(find xbot_cruise)/map/"/>
+    <arg name="map_file" default="502.yaml"/>
+    <!--<arg name="map_file" default="001.yaml"/>-->
+
+    <arg name="frame_id"   default="map"/>
+    <arg name="root_topic"   default="obstacles"/>
+    <arg name="use_map_topic"   default="map"/>
+
+    <node name="map_server" pkg="nav_staff" type="ReadMap.py" output="screen" respawn="true" >
+        <param name="map_path"   value="$(arg map_path)"/>
+        <param name="map_file"   value="$(arg map_file)"/>
+        <param name="frame_id"   value="$(arg frame_id)"/>
+        <param name="root_topic"   value="$(arg root_topic)"/>
+        <param name="use_map_topic"   value="$(arg use_map_topic)"/>
+    </node>
+
+    <!--amcl-->
+    <arg name="initial_position_x" default="1.3"/>
+    <arg name="initial_position_y" default="6.9"/>
+    <arg name="initial_position_z" default="0.0"/>
+
+    <arg name="initial_orientation_x" default="0.0"/>
+    <arg name="initial_orientation_y" default="0.0"/>
+    <arg name="initial_orientation_z" default="0.0"/>
+    <arg name="initial_orientation_w" default="1.0"/>
+
+
+    <arg name="initial_pose_a" default="-1.1489145095412117"/>
+    <include file="$(find nav_staff)/launch/xml/amcl_xu_adapted.launch.xml">
+        <arg name="initial_position_x"   value="$(arg initial_position_x)"/>
+        <arg name="initial_position_y"   value="$(arg initial_position_y)"/>
+        <arg name="initial_position_z"   value="$(arg initial_position_z)"/>
+
+        <arg name="initial_orientation_x"   value="$(arg initial_orientation_x)"/>
+        <arg name="initial_orientation_y"   value="$(arg initial_orientation_y)"/>
+        <arg name="initial_orientation_z"   value="$(arg initial_orientation_z)"/>
+        <arg name="initial_orientation_w"   value="$(arg initial_orientation_w)"/>
+
+
+        <!--<arg name="amcl_frequency"   value="0.25"/>-->
+    </include>
+
+    <!--amcl odom-->
+    <arg name="target_frame"               value="/map"/>
+    <arg name="source_frame"               value="/base_footprint"/>
+    <arg name="use_odom_topic"             value="/robot_position_in_map"/>
+    <include file="$(find amcl_odom)/launch/robot_position_in_map.launch">
+        <arg name="target_frame"   value="$(arg target_frame)"/>
+        <arg name="source_frame"   value="$(arg source_frame)"/>
+        <arg name="use_odom_topic"   value="$(arg use_odom_topic)"/>
+    </include>
+
+    <!--move base-->
+    <include file="$(find nav_staff)/launch/xml/move_base_xu.launch.xml" />
+
+</launch>
