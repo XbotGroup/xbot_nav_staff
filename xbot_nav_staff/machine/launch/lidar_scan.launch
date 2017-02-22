@@ -47,7 +47,7 @@
             <arg name = 'source_frame'           value= 'camera_depth_frame' />
             <arg name = 'fusion_data_frame'      value= 'global_scan' />
 
-            <arg name = 'PublishFrequency'       value= '0.01' />
+            <arg name = 'PublishFrequency'       value= '10' />
             <arg name = 'asus_max_range'         value= '3.0' />
         </include>
     </group>

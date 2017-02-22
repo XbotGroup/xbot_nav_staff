@@ -1,18 +1,12 @@
 <!--this file is demo for nav with auto obstacle avoidance -->
 <launch>
- 
-  <include file="$(find machine)/launch/lidar_scan.launch" >
-    <arg name = "use_rplidar_only" value = "false" />
-    <arg name = "use_asus_only" value = "false" />
-    <arg name = "fusion_data" value = "true" />
-  </include>
-  
+
   <param name="use_sim_time" value="false" />
   
   <!--map saver-->
   <arg name="map_path" default="$(find xbot_cruise)/map/"/>
-  <arg name="map_file" default="502.yaml"/>
-  <!--<arg name="map_file" default="001.yaml"/>-->
+  <!--<arg name="map_file" default="502.yaml"/>-->
+  <arg name="map_file" default="001.yaml"/>
 
   <arg name="frame_id"   default="map"/>
   <arg name="root_topic"   default="obstacles"/>
@@ -46,8 +40,13 @@
    <arg name="source_frame"   value="$(arg source_frame)"/>
    <arg name="use_odom_topic"   value="$(arg use_odom_topic)"/>
   </include>
-
   <!--move base-->
   <include file="$(find nav_staff)/launch/xml/move_base_xu.launch.xml" />
+
+  <include file="$(find machine)/launch/lidar_scan.launch" >
+    <arg name = "use_rplidar_only" value = "false" />
+    <arg name = "use_asus_only" value = "false" />
+    <arg name = "fusion_data" value = "true" />
+  </include>
 
 </launch>

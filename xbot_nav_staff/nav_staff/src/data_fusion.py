@@ -13,9 +13,9 @@ This programm is tested on kuboki base turtlebot.
 """
 import rospy
 from sensor_msgs.msg import LaserScan
+import tf
 import numpy
 import collections
-from threading import Lock
 
 LaserData = collections.deque(maxlen=1)
 
@@ -52,7 +52,7 @@ class fusion():
         self.use_asus_topic = rospy.get_param('~use_asus_topic')
 
         if not rospy.has_param('~scan_topic'):
-             rospy.set_param('~scan_topic', '/scan_test')
+             rospy.set_param('~scan_topic', '/scan')
         self.scan_topic = rospy.get_param('~scan_topic')
 
         if not rospy.has_param('~target_frame'):
@@ -75,40 +75,37 @@ class fusion():
             rospy.set_param('~asus_max_range', 4.0)
         self.asus_max_range = rospy.get_param('~asus_max_range')
 
-        self.period = rospy.Duration(PublishFrequency)
+        self.period = rospy.Duration(1.0/PublishFrequency)
 
         self.laser_data = None
         self.asus_data = None
         self.seq = 0
         self.data = None
-        self.locker = Lock()
 
     def rplidarCB(self, laser_message):
-        with self.locker:
-            self.laser_data = laser_message
-            self.laser_data.ranges = [i for i in laser_message.ranges]
+        self.laser_data = laser_message
+        self.laser_data.ranges = [i for i in laser_message.ranges]
+
 
     def asusCB(self, asus_message):
-        with self.locker:
-            self.asus_data = asus_message
-            self.asus_data.ranges = [i if i <= self.asus_max_range else numpy.inf for i in asus_message.ranges]
+        self.asus_data = asus_message
+        self.asus_data.ranges = [i if i <= self.asus_max_range else numpy.inf for i in asus_message.ranges]
+
 
     def Pub_Data(self, data):
-        pub_data = rospy.Publisher(self.scan_topic, LaserScan, queue_size=1)
+        pub_data = rospy.Publisher(self.scan_topic, LaserScan, queue_size=2)
+        data.header.stamp = rospy.Time.now()
         pub_data.publish(data)
 
     def PubLaserCB(self, event):
+        global LaserDatadata_fusion
         self.data_fusion()
-        global LaserData
         if len(LaserData) > 0:
             self.data = LaserData.pop()
             self.Pub_Data(self.data)
         else:
             if self.data != None:
                 self.Pub_Data(self.data)
-            else:
-                rospy.loginfo('wait for laser scan')
-                pass
 
     def data_fusion(self):
         if self.asus_data != None and self.laser_data != None:
@@ -117,7 +114,6 @@ class fusion():
             data.angle_max = self.laser_data.angle_max
             data.header = self.laser_data.header
             data.header.frame_id = self.fusion_data_frame
-            data.header.stamp = rospy.Time.now()
             data.header.seq = self.seq
             self.seq += 1
             data.time_increment = self.laser_data.time_increment
@@ -128,7 +124,7 @@ class fusion():
             data.ranges=[]
             angle = self.laser_data.angle_min
             for i in self.laser_data.ranges:
-                if -0.510632932186 <= angle and angle <= 0.510632932186:
+                if -0.510 <= angle and angle <= 0.510:
                     num = self.asus_data.angle_max
                     for j in self.asus_data.ranges:
                         # print num - angle, num, angle
@@ -141,9 +137,14 @@ class fusion():
             if len(data.ranges) == len(self.laser_data.ranges):
                 global LaserData
                 LaserData.append(data)
+        else:
+            if self.asus_data == None:
+                rospy.loginfo('wait for asus data')
+            if self.laser_data == None:
+                rospy.loginfo('wait for rplidar data')
 
 if __name__ == '__main__':
-    rospy.init_node('data_fusion')
+    rospy.init_node('Data_fusion')
     try:
         rospy.loginfo("initialization system")
         fusion()
