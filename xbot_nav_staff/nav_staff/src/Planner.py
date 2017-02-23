@@ -124,7 +124,7 @@ class Planner():
                         return True
             return False
         else:
-            rospy.logwarn('No valid path')
+            #rospy.logwarn('No valid path')
             return False
 
     def visual_testing(self, data):
