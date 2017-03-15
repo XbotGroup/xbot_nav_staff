@@ -30,7 +30,7 @@
         <arg name="initial_pose_y"   value="$(arg initial_pose_y)"/>
         <arg name="initial_pose_a"   value="$(arg initial_pose_a)"/>
         <arg name="amcl_frequency"   value="0.25"/>
-        <arg name="amcl_scan_topic"  value="/asus_scan"/>
+        <arg name="scan_topic" default="asus_scan"/>
     </include>
 
     <!--amcl odom-->
