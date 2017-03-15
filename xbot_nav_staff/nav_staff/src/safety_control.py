@@ -51,7 +51,7 @@ class Safty_Control():
         self.safty_sp = Twist()
 
     def SaftyCB(self, message):
-        if message.danger:
+        if message.left == 1 or message.center == 2 or message.right == 4:
             if self.cur_cmd != None:
                 if round(self.cur_cmd.linear.x, 2) != 0 or round(self.cur_cmd.angular.z, 2) != 0:
                     self.safty_sp.linear.x += CMDLib._sign(-self.cur_cmd.linear.x)*self.accsp
