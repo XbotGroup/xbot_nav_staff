@@ -2,7 +2,11 @@
 <launch>
 
     <!--global scan-->
-    <include file="$(find machine)/launch/lidar_scan.launch"/>
+    <!--<include file="$(find machine)/launch/lidar_scan.launch">-->
+        <!--<arg name = "use_rplidar_only" value = "false"/>-->
+        <!--<arg name = "use_asus_only"    value = "false"/>-->
+        <!--<arg name = "use_fussion_data" value = "true"/>-->
+    <!--</include>-->
 
     <!--map saver-->
     <arg name="map_path" default="$(find xbot_cruise)/map/"/>
@@ -30,7 +34,7 @@
         <arg name="initial_pose_y"   value="$(arg initial_pose_y)"/>
         <arg name="initial_pose_a"   value="$(arg initial_pose_a)"/>
         <arg name="amcl_frequency"   value="0.25"/>
-        <arg name="scan_topic" default="asus_scan"/>
+        <arg name="amcl_scan_topic"  value="/scan"/>
     </include>
 
     <!--amcl odom-->

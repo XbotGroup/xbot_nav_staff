@@ -5,9 +5,9 @@
 
     <arg name = 'PlanTopic_view'        default= '/move_base/action_plan/view_fixed' />
     <arg name = 'PublishFrequency'      default= '0.01' />
-    <arg name = 'PathStorePath'         default= '/home/ubuntu/path.json' />
+    <arg name = 'PathStorePath'         default= 'path.json' />
 
-    <node pkg='nav_staff' type='fixed_plan_maker.py' name='fixed_plan_maker' output="screen">
+    <node pkg='nav_staff' type='fixed_plan_maker.py' name='fixed_plan_maker' output="screen" respawn="true">
         <param name="OdomTopic"         value="$(arg OdomTopic)" />
         <param name="GoalTopic"         value="$(arg GoalTopic)" />
         <param name="PlanTopic"         value="$(arg PlanTopic)" />

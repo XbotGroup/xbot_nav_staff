@@ -64,9 +64,6 @@ class JPS():
 
     def define(self):
         rospy.loginfo('intial JPS algrithm')
-        # if not rospy.has_param('~obstacle_thread'):
-        #     rospy.set_param('~obstacle_thread', 20)
-        # self.obstacle_thread = rospy.get_param('~obstacle_thread')
         self.obstacle_thread = 20
         self.UNINITIALIZED = 0
         self.OBSTACLE = 100
@@ -79,16 +76,16 @@ class JPS():
         self.JPS_map = None
         self.start_from = None
         self.end_with = None
-        rospy.wait_for_service('/JPS_map_init')
-        try:
-            init_map_service = rospy.ServiceProxy('/JPS_map_init', GetMap)
-            init_map = init_map_service()
-            self.JPS_map = init_map.map.data
-            self.mapinfo = init_map.map.info
-            rospy.loginfo('get JSP init map...')
-        except:
-            rospy.logwarn('cannot get JPS_map_init service')
-            pass
+        # rospy.wait_for_service('/JPS_map_init')
+        # try:
+        #     init_map_service = rospy.ServiceProxy('/JPS_map_init', GetMap)
+        #     init_map = init_map_service()
+        #     self.JPS_map = init_map.map.data
+        #     self.mapinfo = init_map.map.info
+        #     rospy.loginfo('get JSP init map...')
+        # except:
+        #     rospy.logwarn('cannot get JPS_map_init service')
+        #     pass
 
     def get_map(self, map_message):
         self.mapinfo = map_message.info
@@ -103,22 +100,20 @@ class JPS():
             self.end_with = None
             self.start_from = (int((start.x - self.mapinfo.origin.position.x)/ self.mapinfo.resolution) + int((start.y - self.mapinfo.origin.position.y) / self.mapinfo.resolution) * self.mapinfo.width)
             self.end_with = (int((end.x - self.mapinfo.origin.position.x) / self.mapinfo.resolution) + int((end.y - self.mapinfo.origin.position.y) / self.mapinfo.resolution) * self.mapinfo.width)
-            if self.JPS_map[self.end_with] >= 30:
+            if self.JPS_map[self.end_with] >= 50:
                 rospy.logwarn('goal is not walkable, unable to generate a plan, dangerous %: ' + str(self.JPS_map[self.end_with]))
                 return None
-            if self.JPS_map[self.start_from] >= 30:
+            if self.JPS_map[self.start_from] >= 80:
                 rospy.logwarn('cannot generate a plan due to staying in a obstacle dangerous %:' + str(self.JPS_map[self.start_from]))
                 # print start
                 return None
             path = None
             path = self.JPS_()
-            # print path
             if path != None:
-                # return (path, self.get_full_path(copy.deepcopy(path)))
-                # return path
-                return self.get_full_path(path)
+                # return self.get_full_path(path)
+                return path
             else:
-                rospy.logwarn('Unvalid Goal Nso Path founded')
+                rospy.logwarn('Unvalid Goal, No Path founded')
                 return None
         else:
             rospy.logwarn('waiting for map... ')
@@ -147,7 +142,6 @@ class JPS():
                 except FoundPath:
                     rospy.loginfo('found path')
                     return self.generate_path_jump_point()
-            # print 'end JPS algrithm'
         else:
             rospy.logwarn('waiting for map')
 
@@ -181,8 +175,8 @@ class JPS():
                 self.ADD_JUMPPOINT(self.explore_straight(cur_node, 0, direction_y))
 
     def explore_straight(self, node, direction_x, direction_y):
-        cur_node = copy.deepcopy(node)
-        cur_cost = copy.deepcopy(self.field[node])
+        cur_node = node
+        cur_cost = self.field[node]
         while True:
             cur_node = cur_node + direction_y*self.mapinfo.width + direction_x
             cur_cost += 1
@@ -223,7 +217,6 @@ class JPS():
             startpose[0].pose.position.x = self.start_from%self.mapinfo.width * self.mapinfo.resolution + self.mapinfo.origin.position.x
             startpose[0].pose.position.y = self.start_from/self.mapinfo.width * self.mapinfo.resolution + self.mapinfo.origin.position.y
             path = startpose + path
-            # return self.get_full_path(path)
             return path
         else:
             return []
@@ -232,26 +225,15 @@ class JPS():
         if path == []:
             return []
         else:
+            rospy.loginfo('start generate a full path')
             result = []
             cur_pose = path[0]
             for i in path[1:]:
                 while abs(i.pose.position.x - cur_pose.pose.position.x) >= 0.05 or abs(i.pose.position.y - cur_pose.pose.position.y) >= 0.05:
-                    x_increase = self._signum(round(i.pose.position.x - cur_pose.pose.position.x, 2))
-                    y_increase = self._signum(round(i.pose.position.y - cur_pose.pose.position.y, 2))
-                    if x_increase != 0 and y_increase != 0:
-                        if self.JPS_map[int((cur_pose.pose.position.y + y_increase - self.mapinfo.origin.position.y)/ self.mapinfo.resolution)*self.mapinfo.width + int((cur_pose.pose.position.x + x_increase - self.mapinfo.origin.position.x)/ self.mapinfo.resolution)] >= self.obstacle_thread:
-                            if self.JPS_map[int((cur_pose.pose.position.y + y_increase - self.mapinfo.origin.position.y)/ self.mapinfo.resolution)*self.mapinfo.width + int((cur_pose.pose.position.x - self.mapinfo.origin.position.x)/ self.mapinfo.resolution)] >= self.obstacle_thread:
-                                # print '1'
-                                cur_pose.pose.position.x += x_increase
-                            if self.JPS_map[int((cur_pose.pose.position.y - self.mapinfo.origin.position.y) / self.mapinfo.resolution)*self.mapinfo.width + int((cur_pose.pose.position.x + x_increase - self.mapinfo.origin.position.x) / self.mapinfo.resolution)] >= self.obstacle_thread:
-                                # print 2
-                                cur_pose.pose.position.y += y_increase
-                        else:
-                            cur_pose.pose.position.x += x_increase
-                            cur_pose.pose.position.y += y_increase
-                    else:
-                        cur_pose.pose.position.x += x_increase
-                        cur_pose.pose.position.y += y_increase
+                    x_increase = self._signum(round(i.pose.position.x - cur_pose.pose.position.x, 1))
+                    y_increase = self._signum(round(i.pose.position.y - cur_pose.pose.position.y, 1))
+                    cur_pose.pose.position.x += x_increase
+                    cur_pose.pose.position.y += y_increase
                     result.append(copy.deepcopy(cur_pose))
             rospy.loginfo('generate a full path')
             return result

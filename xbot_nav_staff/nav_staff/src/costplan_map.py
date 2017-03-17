@@ -30,7 +30,6 @@ class ClearParams:
         rospy.delete_param('~root_topic')
         rospy.delete_param('~devergency_scale')
         rospy.delete_param('~use_map_topic')
-        rospy.delete_param('~publish_hz')
         rospy.delete_param('~use_plan_map_topic')
 
 class CostPlanMap():
@@ -59,21 +58,17 @@ class CostPlanMap():
             rospy.set_param('~use_map_topic', '/map')
         use_map_topic = rospy.get_param('~use_map_topic')
 
-        if not rospy.has_param('~publish_hz'):
-            rospy.set_param('~publish_hz', 0.01)
-        publish_hz = rospy.get_param('~publish_hz')
-
         if not rospy.has_param('~use_plan_map_topic'):
             rospy.set_param('~use_plan_map_topic', '/cost_plan_map')
         self.pub_map_topic = rospy.get_param('~use_plan_map_topic')
 
         self.OBSTACLE = 100
         self.obstacle_scale = self.devergency_scale #int(self.devergency_scale / 2)
-        self.period = rospy.Duration(publish_hz)
+        self.period = rospy.Duration(0.1)
         self.seq = 0
         self.pub_map = OccupancyGrid()
         self.locker = Lock()
-        self.Pubdata = collections.deque(maxlen=1)
+        self.Pubdata = None
 
         self.init_map = rospy.wait_for_message(use_map_topic, OccupancyGrid)
         # print 'get init map'
@@ -85,7 +80,8 @@ class CostPlanMap():
     def generate_map(self, map_message):
         JPS_map_init = self.devergency(map_message.data)
         self.JPS_map_init = [i for i in JPS_map_init]
-        self.Pubdata.append(JPS_map_init)
+        # self.Pubdata.append(JPS_map_init)
+        self.Pubdata = JPS_map_init
         rospy.loginfo('Generate Init map')
         global init
         init = True
@@ -200,7 +196,7 @@ class CostPlanMap():
                             map_[(i - n)*self.mapinfo.width + j - n] = self.obstacle_thread
 
                     else:
-                        print '##################  unkown error ########################'
+                        rospy.logerr(' unkown error ')
             else:
                 pass
         return map_
@@ -248,44 +244,34 @@ class CostPlanMap():
                     global ModifyElement
                     if num not in ModifyElement:
                         ModifyElement.append(num)
-                # print '\n'
-                # for i in range(self.obstacle_scale):
-                #     print i
-                #     print JPS_map[num + n],JPS_map[num-n],JPS_map[num+n+n*self.mapinfo.width],JPS_map[num+n-n*self.mapinfo.width],JPS_map[num-n+n*self.mapinfo.width],JPS_map[num-n-n*self.mapinfo.width]
-                # print '\n'
-                self.Pubdata.append(JPS_map)
+                # self.Pubdata.append(JPS_map)
+                self.Pubdata = JPS_map
         else:
             rospy.logwarn('waiting for init map')
 
     def PubCB(self, event):
         # with self.locker:
-        if len(self.Pubdata) > 0:
-            # time5 = time.time()
-            # global init
-            # if init:
-            #     rospy.loginfo('generate cost map')
+        # if len(self.Pubdata) > 0:
+        if self.Pubdata != None:
             self.pub_map = OccupancyGrid()
             self.pub_map.header.stamp = rospy.Time.now()
             self.pub_map.header.seq = self.seq
             self.seq += 1
             self.pub_map.header.frame_id = 'map'
             self.pub_map.info = self.mapinfo
-            data = self.Pubdata.pop()
+            # data = self.Pubdata.pop()
+            data = self.Pubdata
             if len(data) == self.mapinfo.height * self.mapinfo.width:
                 self.pub_map.data = data
             else:
                 for j in range(self.mapinfo.height):
                     self.pub_map.data.extend(data[j])
-            # time6 = time.time()
-            # print '\nestablish map data spend: ', time6 - time5
             pub = rospy.Publisher(self.pub_map_topic, OccupancyGrid, queue_size=1)
             pub.publish(self.pub_map)
-            # rospy.loginfo('updata map')
         else:
             pub = rospy.Publisher(self.pub_map_topic, OccupancyGrid, queue_size=1)
             self.pub_map.header.stamp = rospy.Time.now()
             pub.publish(self.pub_map)
-            # rospy.loginfo('holding map')
 
     # def Clear(self, event):
     #     with self.locker:
@@ -362,7 +348,8 @@ class CostPlanMap():
     def JPSmapServiceCB(self, request):
         rospy.loginfo('sending JPS init map...')
         response = OccupancyGrid()
-        response.data = self.JPS_map_init
+        # response.data = self.JPS_map_init
+        response.data = self.Pubdata
         response.info = self.mapinfo
         response.header = self.init_map.header
         return response

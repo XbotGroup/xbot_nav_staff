@@ -157,20 +157,21 @@ class SLF:
             return False
 
 def Linear_analyse(points):
-    Key_Points = []
+    Key_Points = [points[1]]
     DDx = round(points[1].x - points[0].x, 2)
     DDy = round(points[1].y - points[0].y, 2)
     for i in range(len(points) - 1):
         Dx = round(points[i+1].x - points[i].x, 2)
         Dy = round(points[i+1].y - points[i].y, 2)
-        if Dy == 0 and DDy != 0:
+        if DDy != 0 and Dy == 0:
             Key_Points.append(points[i])
         elif DDy == 0 and Dy != 0:
             Key_Points.append(points[i])
         elif DDy != 0 and Dy != 0:
             if Dx/Dy != DDx/DDy:
                 Key_Points.append(points[i])
-
+        else:
+            pass
         DDx = Dx
         DDy = Dy
     if not points[-1] in Key_Points:

@@ -28,6 +28,9 @@ from nav_msgs.msg import Odometry
 ServerCheck = False
 First = True
 Locker = Lock()
+position = tuple()
+orientation = tuple()
+
 
 class ClearParams:
     def __init__(self):
@@ -55,7 +58,16 @@ class AMCL():
         rospy.Subscriber(self.MapTopic, OccupancyGrid, self.HandleMapMessage)
         rospy.Subscriber(self.ScanTopic, LaserScan, self.HandleLaserMessage)
         rospy.Subscriber(self.OdomTopic, Odometry, self.HandleOdomMessage)
+        rospy.Timer(self.amcl_frequency, self.PubamclCB)
         rospy.spin()
+
+    def PubamclCB(self, event):
+        br = tf.TransformBroadcaster()
+        global position
+        global orientation
+        position = (0,0,0)
+        orientation = (0,0,0,1)
+        # br.sendTransform((position, orientation, rospy.Time.now(), self.source_frame, self.global_frame)
 
     def RequestMap(self):
         global ServerCheck
@@ -75,12 +87,6 @@ class AMCL():
     def HandleMapMessage(self, map_msg):
         with Locker:
             self.internal_map = self.ConvertMap(map_msg)
-            # self.internal_map.header = map_msg.header
-            # self.internal_map.header.stamp = rospy.Time.now()
-            # self.internal_map.info.resolution = map_msg.info.resolution
-            # self.internal_map.info.width = map_msg.info.width
-            # self.internal_map.info.height = map_msg.info.height
-            # self.internal_map.info.map_load_time = map_msg.info.map_load_time
             self.Pubmap(map_msg)
             self.apply_pose()
 
@@ -95,8 +101,6 @@ class AMCL():
     def ConvertMap(self, map_msg):
         #Convert an OccupancyGrid map message into the internal representation.  This allocates a map_t and returns it.
         map = OccupancyGrid()
-        # map.info.origin.position.x = map_msg.info.origin.position.x + (map_msg.info.width / 2) * map_msg.info.resolution
-        # map.info.origin.position.y = map_msg.info.origin.position.y + (map_msg.info.height / 2) * map_msg.info.resolution
         map.data = list(copy.deepcopy(map_msg.data))
         for i in range(map_msg.info.width * map_msg.info.height):
             if map_msg.data[i] == 0:
@@ -124,7 +128,7 @@ class AMCL():
 
     def apply_pose(self):
         #用来update robot position in map
-        self.listener.waitForTransform(self.target_frame, self.source_frame, rospy.Time.now(), rospy.Duration(0.01))
+        self.listener.waitForTransform(self.target_frame, self.source_frame, rospy.Time.now(), rospy.Duration(0.1))
         (trans, rot) = self.listener.lookupTransform(self.target_frame, self.source_frame, rospy.Time.now())
 
         self.init_pose.pose.position.x = trans[0]
@@ -171,9 +175,9 @@ class AMCL():
             rospy.set_param('~use_initialpose_topic', '/initialpose')
         self.InitialposeTopic = rospy.get_param('~use_initialpose_topic')
 
-        if not rospy.has_param('~AmclMapTopic'):
-            rospy.set_param('~AmclMapTopic', '/amcl_map')
-        self.AmclMapTopic = rospy.get_param('~AmclMapTopic')
+        # if not rospy.has_param('~AmclMapTopic'):
+        #     rospy.set_param('~AmclMapTopic', '/amcl_map')
+        # self.AmclMapTopic = rospy.get_param('~AmclMapTopic')
 
         if not rospy.has_param("~target_frame"):
             rospy.set_param("~target_frame", "/odom")
@@ -182,6 +186,10 @@ class AMCL():
         if not rospy.has_param("~source_frame"):
             rospy.set_param("~source_frame", "/base_link")
         self.source_frame = rospy.get_param("~source_frame")
+
+        if not rospy.has_param("~global_frame"):
+            rospy.set_param("~global_frame", "/map")
+        self.global_frame = rospy.get_param("~global_frame")
 
         if not rospy.has_param("~initial_position_x"):
             rospy.set_param("~initial_position_x", 0)
@@ -211,22 +219,23 @@ class AMCL():
             rospy.set_param("~initial_orientation_w", 1)
         init_orientation_w = rospy.get_param("~initial_orientation_w")
 
+        if not rospy.has_param("~AMCL_frequency"):
+            rospy.set_param("~AMCL_frequency", 10)
+        AMCL_frequency = rospy.get_param("~AMCL_frequency")
+
+        self.amcl_frequency = 1.0/AMCL_frequency
+
         self.listener=tf.TransformListener()
 
         self.init_pose = PoseStamped()
 
         self.init_pose.pose.position.x = init_position_x
-
         self.init_pose.pose.position.y = init_position_y
-
         self.init_pose.pose.position.z = init_position_z
 
         self.init_pose.pose.orientation.x = init_orientation_x
-
         self.init_pose.pose.orientation.y = init_orientation_y
-
         self.init_pose.pose.orientation.z = init_orientation_z
-
         self.init_pose.pose.orientation.w = init_orientation_w
 
         self.PubInitPose(self.init_pose)

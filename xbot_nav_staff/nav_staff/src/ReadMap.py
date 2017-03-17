@@ -31,13 +31,12 @@ class ClearParams:
         rospy.delete_param('~frame_id')
         rospy.delete_param('~use_map_topic')
         rospy.delete_param('~root_topic')
-        rospy.delete_param('~publish_hz')
 
 class grid_map():
  def __init__(self):
   self.define()
   self.init_map = self.ReadPGMMap()
-  self.Map =  copy.deepcopy(self.init_map)
+  self.Map = copy.deepcopy(self.init_map)
   self.start = True
   self.segments = 50
 
@@ -74,7 +73,6 @@ class grid_map():
   with self.locker:
    self.Map = self._map_(copy.deepcopy(self.Map))
    self.map_pub.publish(self.Map)
-   #rospy.loginfo ('update map')
    self.PubMetadata()
    
  def Clear(self,event):
@@ -122,11 +120,7 @@ class grid_map():
   if not rospy.has_param('~root_topic'):
    rospy.set_param('~root_topic','/test_obstacles')
 
-  if not rospy.has_param('~publish_hz'):
-   rospy.set_param('~publish_hz', 0.001)
-  publish_hz = rospy.get_param('~publish_hz')
-
-  self.period = rospy.Duration(publish_hz)
+  self.period = rospy.Duration(0.1)
   self.origin_orientation = Quaternion()
   self.origin_orientation.w = -1
   
@@ -144,9 +138,7 @@ class grid_map():
   (self.image, self.resolution, self.origin_position, self.reverse, self.occupied_thresh, self.free_thresh, self.load_time) = self.ReadYaml()
   self.occupied_thresh = int(self.occupied_thresh *  255)
   self.free_thresh = int(self.free_thresh * 255)
-  
-  #print self.free_thresh,self.occupied_thresh 
-  
+
   f=Image.open(self.filepath + self.image)
   (width, height) = f.size
   GridMap=numpy.array(f)
@@ -171,8 +163,8 @@ class grid_map():
     elif resl.all() and not self.reverse:
      Map.data.append(100)  
     else:
-     #print 1
      Map.data.append(50)
+
   #print Map.info
   rospy.loginfo( 'Map readed' )
   return Map

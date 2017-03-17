@@ -45,7 +45,7 @@ def get_clear_point(data):
     return clear_area
 
 #视觉显示数据
-def visual_test(data, Type, color, scale):  # data=[point1,point2,point3...]###################visual_test
+def visual_test(data, Type, color, scale, duration = 1):  # data=[point1,point2,point3...]###################visual_test
     # plot POINTS
     # print len(data),data[0],data[1]
     if Type == Marker.POINTS:
@@ -62,9 +62,8 @@ def visual_test(data, Type, color, scale):  # data=[point1,point2,point3...]####
         point_marker.scale.y = scale.y  # 0.1
 
         point_marker.points = data
-        for i in data:
-            point_marker.colors.append(color)
-        point_marker.lifetime = rospy.Duration(0.2)
+        [point_marker.colors.append(color) for i in data]
+        point_marker.lifetime = rospy.Duration(duration)
         return point_marker
 
     # plot LINE_LIST
@@ -84,7 +83,7 @@ def visual_test(data, Type, color, scale):  # data=[point1,point2,point3...]####
         line_marker.points = data
         for i in data:
             line_marker.colors.append(color)
-        line_marker.lifetime = rospy.Duration(0.5)
+        line_marker.lifetime = rospy.Duration(duration)
         return line_marker
 
     # plot texting
@@ -98,7 +97,7 @@ def visual_test(data, Type, color, scale):  # data=[point1,point2,point3...]####
         flag_marker.text = "test"
         # flag_marker.ns = ""
         flag_marker.header.stamp = rospy.Time.now()
-        flag_marker.lifetime = rospy.Duration(1)
+        flag_marker.lifetime = rospy.Duration(duration)
         flag_marker.pose = data
         flag_marker.pose.position.z = 1
         return flag_marker

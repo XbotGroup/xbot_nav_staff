@@ -15,21 +15,27 @@
 
     <!--base controller-->
     <arg name="PathAcc"                 default='0.5' />
-    <arg name="MaxLinearSP"             default='0.35' />
+    <arg name="MaxLinearSP"             default='0.4' />
     <arg name="MinLinearSP"             default='0.1' />
-    <arg name="AngularSP"               default='0.2' />
+    <arg name="AngularSP"               default='0.3' />
     <arg name="AngularBias"             default='0.2' />
     <arg name="AngularFree"             default="0.1"/>
     <arg name="GoalTolerant"            default="0.01"/>
     <arg name="visual_test"             default="True"/>
     <arg name="FixedPlanTopic"          default="/move_base/action_plan/fixed"/>
+    <arg name="OncePlanTopic"           default="/move_base/action_plan"/>
+    <arg name="SwitchModleTopic"        default="/move_base/switch" />
+    <arg name="times"                   default= '2' />
 
     <arg if="$(arg fixed_path)" name="MovebasePlanTopic" value="$(arg FixedPlanTopic)" />
     <arg unless="$(arg fixed_path)" name="MovebasePlanTopic" value="$(arg PlanTopic)" />
 
-    <node pkg="nav_staff" type="base_controller.py" respawn="true" name="BaseController_X" output="screen">
+    <node pkg="nav_staff" type="base_controller_node.py" respawn="true" name="BaseController_X" output="screen">
 
-        <param name="PlanTopic"         value="$(arg MovebasePlanTopic)" />
+        <param name="SwitchModleTopic"  value="$(arg SwitchModleTopic)" />
+        <param name="PlanTopicFixed"    value="$(arg FixedPlanTopic)" />
+        <param name="PlanTopicOnce"     value="$(arg OncePlanTopic)" />
+
         <param name="OdomTopic"         value="$(arg OdomTopic)" />
         <param name="MotionTopice"      value="$(arg MotionTopice)" />
 
@@ -42,8 +48,7 @@
         <param name="AngularFree"       value="$(arg AngularFree)" />
         <param name="PublishFrequency"  value="$(arg PublishFrequency)" />
         <param name="GoalTolerant"      value="$(arg GoalTolerant)" />
-
-        <param name="visual_test"       value="$(arg visual_test)" />
+        <param name="times"             value="$(arg times)" />
     </node>
 
     <arg name="CmdTopice"               value='cmd_vel_mux/input/navi' />
@@ -55,10 +60,7 @@
         <arg name='accsp'                 value='$(arg accsp)' />
     </include>
 
-    <!--fixed_path-->
-    <!--<include if="$(arg fixed_path)" file="$(find nav_staff)/launch/xml/fixed_plan_maker.launch.xml" />-->
-
-    <!--&lt;!&ndash; plan fixer&ndash;&gt;-->
+    <!--plan_fixer-->
     <!--<arg name="PositionFree" default="0.1" />-->
     <!--<arg name="ActionPlanTopic" default="/move_base/action_plan" />-->
     <!--<arg name="RawPlanTopic" default='/move_base/NavfnROS/plan' />-->
@@ -80,7 +82,6 @@
         <param name="GoalTopic"               value="$(arg GoalTopic)" />
         <param name="MapTopic"                value="$(arg MapTopic)" />
         <param name="PlanTopic"               value="$(arg PlanTopic)" />
-        <param name="PublishFrequency"        value="$(arg PublishFrequency)" />
         <param name="OdomTopic"               value="$(arg OdomTopic)" />
         <param name="visual_debug"            value="$(arg visual_debug)" />
         <param name="detect_scale"            value="$(arg detect_scale)" />
@@ -92,14 +93,12 @@
         <arg name="root_topic"              value="/test_obstacles" />
         <arg name="devergency_scale"        value="$(arg potential_field)" />
         <arg name="use_map_topic"           value="/map" />
-        <arg name="update_hz"               value="0.01" />
         <arg name="use_plan_map_topic"      value="/cost_plan_map" />
         <include file="$(find nav_staff)/launch/xml/cost_map.launch.xml">
             <arg name="obstacle_thread"       value="$(arg obstacle_thread)"/>
             <arg name="root_topic"            value="$(arg root_topic)"/>
             <arg name="devergency_scale"      value="$(arg devergency_scale)"/>
             <arg name="use_map_topic"         value="$(arg use_map_topic)"/>
-            <arg name="update_hz"             value="$(arg update_hz)"/>
             <arg name="use_plan_map_topic"    value="$(arg use_plan_map_topic)"/>
         </include>
     <group/>

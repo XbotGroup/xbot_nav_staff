@@ -9,6 +9,5 @@
         <param name="CmdTopice"            value="$(arg CmdTopice)" />
         <param name="MaxLinearSP"          value="$(arg MaxLinearSP)" />
         <param name="accsp"                value="$(arg accsp)" />
-
     </node>
 </launch>

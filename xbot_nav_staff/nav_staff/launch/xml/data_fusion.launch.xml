@@ -5,25 +5,21 @@
 
     <arg name = 'fussion_target_frame'           default= 'laser' />
     <arg name = 'fussion_source_frame'           default= 'camera_depth_frame' />
-    <arg name = 'fussion_data_frame'      default= 'global_scan' />
+    <arg name = 'fussion_data_frame'             default= 'global_scan' />
 
-    <arg name = 'fussion_PublishFrequency'       default= '0.2' />
+    <arg name = 'fussion_PublishFrequency'       default= '0.01' />
     <arg name = 'fussion_asus_max_range'         default= '4.0' />
 
+    <node pkg='nav_staff' type='data_fusion_node.py' name='data_fusion' output="screen">
+        <param name="fussion_use_rplidar_topic"         value="$(arg fussion_use_rplidar_topic)" />
+        <param name="fussion_use_asus_topic"            value="$(arg fussion_use_asus_topic)" />
+        <param name="fussion_scan_topic"                value="$(arg fussion_scan_topic)" />
 
+        <param name="fussion_target_frame"              value="$(arg fussion_target_frame)" />
+        <param name="fussion_source_frame"              value="$(arg fussion_source_frame)" />
+        <param name="fussion_data_frame"                value="$(arg fussion_data_frame)" />
 
-    <node pkg='nav_staff' type='data_fusion.py' name='data_fusion' output="screen">
-        <param name="use_rplidar_topic"         value="$(arg fussion_use_rplidar_topic)" />
-        <param name="use_asus_topic"            value="$(arg fussion_use_asus_topic)" />
-        <param name="scan_topic"                value="$(arg fussion_scan_topic)" />
-
-        <param name="target_frame"              value="$(arg fussion_target_frame)" />
-        <param name="source_frame"              value="$(arg fussion_source_frame)" />
-        <param name="fusion_data_frame"         value="$(arg fussion_data_frame)" />
-
-        <param name="PublishFrequency"          value="$(arg fussion_PublishFrequency)" />
-        <param name="asus_max_range"            value="$(arg fussion_asus_max_range)" />
+        <param name="fussion_PublishFrequency"          value="$(arg fussion_PublishFrequency)" />
+        <param name="fussion_asus_max_range"            value="$(arg fussion_asus_max_range)" />
     </node>
-
-    <!--<node pkg="tf" type="static_transform_publisher" name="data_fusion_broadcaster" args="0 0 0.6 0 0 0 1 /$(arg target_frame) /$(arg fusion_data_frame) 2000" />-->
 </launch>

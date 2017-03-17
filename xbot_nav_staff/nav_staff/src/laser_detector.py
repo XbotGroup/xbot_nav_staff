@@ -11,18 +11,38 @@ This programm is tested on kuboki base turtlebot.
 
 """
 import rospy
+from sensor_msgs.msg import LaserScan
+from PlanAlgrithmsLib import maplib
 
 class ClearParams():
     def __init__(self):
-        rospy.delete_param("")
+        rospy.delete_param("scan_topic")
 
 class laser_detector():
     def __init__(self):
         self.define()
+        rospy.Subscriber(self.ScanTopic, LaserScan, self.HandleLaserMessage)
+        rospy.spin()
 
     def define(self):
+        if not rospy.has_param('~scan_topic'):
+            rospy.set_param('~scan_topic', '/scan')
+        self.ScanTopic = rospy.get_param('~scan_topic')
+        if not rospy.has_param('~detect_min'):
+            rospy.set_param('~detect_min', -3.14)
+        self.DetectMin = rospy.get_param('~detect_min')
+        if not rospy.has_param('~detect_max'):
+            rospy.set_param('~detect_max', 3.14)
+        self.DetectMax = rospy.get_param('~detect_max')
 
-    def
+    def HandleLaserMessage(self, message):
+        data = message.ranges
+        min_dis = message.range_min
+        angle_start = message.angle_min
+        angle_end = message.angle_max
+        scan_time = message.header.stamp
+        angle_increment = message.angle_increment
+
 
 
 if __name__=='__main__':

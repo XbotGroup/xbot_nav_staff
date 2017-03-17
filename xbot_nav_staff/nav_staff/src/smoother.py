@@ -8,8 +8,6 @@ Copyright (c) 2017 Xu Zhihao (Howe).  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 
-This programm is tested on kuboki base turtlebot.
-
 """
 
 import rospy
@@ -26,36 +24,35 @@ class smoother():
         if not rospy.has_param('~MotionTopice'):
             rospy.set_param('~MotionTopice', 'cmd_vel_mux/input/smoother')
         self.MotionTopice = rospy.get_param('~MotionTopice')
+
         if not rospy.has_param('~CmdTopice'):
             rospy.set_param('~CmdTopice', 'cmd_vel_mux/input/navi')
+        self.CmdTopic = rospy.get_param('~CmdTopice')
+
         if not rospy.has_param('~MaxLinearSP'):
             rospy.set_param('~MaxLinearSP', '0.4')
+        self.maxsp = rospy.get_param('~MaxLinearSP')
+
         if not rospy.has_param('~accsp'):
             rospy.set_param('~accsp', '0.01')
-        self.MotionTopice = rospy.get_param('~MotionTopice')
-        self.CmdTopic = rospy.get_param('~CmdTopice')
-        self.maxsp = rospy.get_param('~MaxLinearSP')
         self.accsp = rospy.get_param('~accsp')
 
         self.pre_cmd = None
         
 
     def CMDCB(self, cmd):
-        # print 'cmd: ',cmd.linear.x
         if self.pre_cmd == None:
             self.pre_cmd = cmd
         else:
-            pass
-        if abs(round(self.pre_cmd.linear.x - cmd.linear.x, 2)) >= self.accsp:
-            self.pre_cmd.linear.x += CMDLib._sign(self.pre_cmd.linear.x - cmd.linear.x)* self.accsp
-            # print 'pre_cmd: ',self.pre_cmd.linear.x, '\n'
-        else:
-            self.pre_cmd = cmd
-        if cmd.linear.x > self.maxsp:
-            self.pre_cmd.linear.x = self.maxsp
-        else:
-            pass
-        self.PUB(self.pre_cmd)
+            if abs(round(self.pre_cmd.linear.x - cmd.linear.x, 2)) >= self.accsp:
+                self.pre_cmd.linear.x += CMDLib._sign(self.pre_cmd.linear.x - cmd.linear.x)* self.accsp
+            else:
+                self.pre_cmd = cmd
+
+            if self.pre_cmd.linear.x > self.maxsp:
+                self.pre_cmd.linear.x = self.maxsp
+
+            self.PUB(self.pre_cmd)
 
 
 

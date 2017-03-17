@@ -23,13 +23,18 @@ from geometry_msgs.msg import Point
 from visualization_msgs.msg import Marker
 from threading import Lock
 from geometry_msgs.msg import Quaternion
+from std_msgs.msg import String
 
 Tasks = list()
-cmd_queue = collections.deque(maxlen=1)
+cmd_queue = None
+switcher = False
 
 class ClearParams:
     def __init__(self):
-        rospy.delete_param('~PlanTopic')
+        rospy.delete_param('~SwitchModleTopic')
+        rospy.delete_param('~PlanTopicFixed')
+        rospy.delete_param('~PlanTopicOnce')
+
         rospy.delete_param('~OdomTopic')
         rospy.delete_param('~MotionTopice')
 
@@ -43,21 +48,29 @@ class ClearParams:
         rospy.delete_param('~PublishFrequency')
         rospy.delete_param('~GoalTolerant')
 
-        rospy.delete_param('~visual_test')
-
 class BaseController:
     def __init__(self):
         self.define()
         rospy.Subscriber(self.OdomTopic, PoseStamped, self.OdomCB)
-        rospy.Subscriber(self.PlanTopic, Path, self.PlanCB)
+        rospy.Subscriber(self.PlanTopicFixed, Path, self.PlanFixedCB)
+        rospy.Subscriber(self.PlanTopicOnce, Path, self.PlanOnceCB)
+        rospy.Subscriber(self.SwitchModleTopic, String, self.SwitchCB)
         rospy.Timer(self.period, self.PubcmdCB)
         rospy.spin()
 
     def define(self):
         # parameters
-        if not rospy.has_param('~PlanTopic'):
-            rospy.set_param('~PlanTopic', '/move_base/action_plan')
-        self.PlanTopic = rospy.get_param('~PlanTopic')
+        if not rospy.has_param('~SwitchModleTopic'):
+            rospy.set_param('~SwitchModleTopic', '/move_base/switch')
+        self.SwitchModleTopic = rospy.get_param('~SwitchModleTopic')
+
+        if not rospy.has_param('~PlanTopicFixed'):
+            rospy.set_param('~PlanTopicFixed', '/move_base/action_plan/fixed')
+        self.PlanTopicFixed = rospy.get_param('~PlanTopicFixed')
+
+        if not rospy.has_param('~PlanTopicOnce'):
+            rospy.set_param('~PlanTopicOnce', '/move_base/action_plan/once')
+        self.PlanTopicOnce = rospy.get_param('~PlanTopicOnce')
 
         if not rospy.has_param('~OdomTopic'):
             rospy.set_param('~OdomTopic', '/robot_position_in_map')
@@ -101,9 +114,9 @@ class BaseController:
          rospy.set_param('~GoalTolerant', 0.01)
         self.GoalTolerant = rospy.get_param('~GoalTolerant')
 
-        if not rospy.has_param('~visual_test'):
-         rospy.set_param('~visual_test', True)
-        self.visual_test = rospy.get_param('~visual_test')
+        if not rospy.has_param('~times'):
+            rospy.set_param('~times', 2)
+        self.times = rospy.get_param('~times')
 
         self.path = []
 
@@ -112,6 +125,15 @@ class BaseController:
         self.locker = Lock()
 
         self.cmd_vel = Twist()
+
+    def SwitchCB(self, signal):
+        global switcher
+        if signal.data == 'FixedModule':
+            rospy.logwarn('Switch to FixedModule')
+            switcher = False
+        elif signal.data == 'OnePathModule':
+            rospy.logwarn('Switch to OnePathModule')
+            switcher = True
 
     def OdomCB(self, odom):
         global Tasks
@@ -169,11 +191,12 @@ class BaseController:
             angle_cmd = -numpy.pi*2 + angle_cmd
         if angle_cmd < -numpy.pi:
             angle_cmd = numpy.pi * 2 + angle_cmd
-        # print angle_cmd, round(goal_angle - cur_angle, 3)
-        cmd_vector.angular.z = angle_cmd
+        cmd_vector.angular.z = round(angle_cmd, 3)
         cmd_vector.linear.x = round(goal_linear, 3)
+        if 0.0 < cmd_vector.angular.z < 0.03:
+            cmd_vector.angular.z = 0.0
         global cmd_queue
-        cmd_queue.append(cmd_vector)
+        cmd_queue = cmd_vector
 
     def AngularDrift(self, Diff_x, Diff_y):
 
@@ -208,14 +231,25 @@ class BaseController:
 
         return orientation
 
-    def acc_speed(self):
-        pass
-
-    def PlanCB(self, PlanPath):
-        with self.locker:
+    def PlanFixedCB(self, PlanPath):
+        global switcher
+        if not switcher:
             self.path = []
             self.path = PlanPath.poses
             global Tasks
+            Tasks = list()
+            segment = [i.pose.position for i in self.path]
+            if len(segment) >= 2:
+                Tasks = self.linear_analyse(segment)
+                Tasks = Tasks * self.times
+
+    def PlanOnceCB(self, PlanPath):
+        global switcher
+        if switcher:
+            self.path = []
+            self.path = PlanPath.poses
+            global Tasks
+            Tasks = list()
             segment = [i.pose.position for i in self.path]
             if len(segment) >= 2:
                 Tasks = self.linear_analyse(segment)
@@ -223,12 +257,12 @@ class BaseController:
     def PubcmdCB(self, data):
         global cmd_queue
         cmd = Twist()
-        if len(cmd_queue) > 0:
-            self.cmd_vel = cmd_queue.pop()
+        if cmd_queue != None:
+            self.cmd_vel = cmd_queue
+            cmd_queue = None
         cmd_pub = rospy.Publisher(self.MotionTopice, Twist, queue_size=1)
         if self.cmd_vel != Twist():
             if abs(self.cmd_vel.angular.z) > self.AngularBias:
-                # print '>AngularBias', self.cmd_vel.angular.z
                 if abs(self.cmd_vel.angular.z) < numpy.pi:
                     if self.cmd_vel.angular.z > 0:
                         cmd.angular.z = self.AngularSP
@@ -259,34 +293,25 @@ class BaseController:
                             if self.cmd_vel.linear.x >= self.GoalTolerant:
                                 cmd.linear.x = self.cmd_vel.linear.x
                             else:
-                                # self.cmd_vel.linear.x = 0
                                 cmd.linear.x = 0
                 else:
                     rospy.logerr('both linear and angular input is zero!')
                 cmd_pub.publish(cmd)
 
-
     def linear_analyse(self, points):
         nodes = CVlib.Linear_analyse(points)
-        if self.visual_test:
-            color = ColorRGBA()
-            scale = Point()
-            scale.x = 0.05
-            scale.y = 0.05
-            color.r = 0.0
-            color.g = 0.0
-            color.b = 1.0
-            color.a = 1.0
-            result = maplib.visual_test(nodes, Marker.POINTS, color, scale)
-            pub = rospy.Publisher('/base_controller_key_node', Marker, queue_size=1)
-            pub.publish(result)
         return nodes
 
-if __name__ == '__main__':
-    rospy.init_node('BaseController_X')
-    try:
-        rospy.loginfo("initialization system")
-        BaseController()
-        ClearParams()
-    except rospy.ROSInterruptException:
-        rospy.loginfo("node terminated.")
+    # def visualise(self, nodes):
+    #     if self.visual_test:
+    #         color = ColorRGBA()
+    #         scale = Point()
+    #         scale.x = 0.05
+    #         scale.y = 0.05
+    #         color.r = 0.0
+    #         color.g = 0.0
+    #         color.b = 1.0
+    #         color.a = 1.0
+    #         result = maplib.visual_test(nodes, Marker.POINTS, color, scale, 1)
+    #         pub = rospy.Publisher('/base_controller_key_node', Marker, queue_size=1)
+    #         pub.publish(result)

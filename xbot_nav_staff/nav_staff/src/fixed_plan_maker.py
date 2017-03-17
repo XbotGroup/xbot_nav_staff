@@ -26,6 +26,8 @@ import getpass
 Finish = False
 Save = False
 use_exit_path = False
+path_q = collections.deque(maxlen=1)
+
 
 class ClearParams:
     def __init__(self):
@@ -36,13 +38,12 @@ class ClearParams:
         rospy.delete_param('~PublishFrequency')
         rospy.delete_param('~PathStorePath')
 
-
 class fixed():
     def __init__(self):
+        rospy.sleep(1.0)
         self.define()
-        # rospy.Subscriber(self.PlanTopic, Path, self.PlanCB)
         rospy.Subscriber(self.GoalTopic, PointStamped, self.GoalCB)
-        rospy.Timer(self.period, self.PubPlanCB)
+        rospy.Timer(self.period, self.PubPlan_viewCB)
         rospy.Timer(self.period, self.FinshCB)
         rospy.Timer(self.period, self.PlanCB)
         rospy.spin()
@@ -68,18 +69,17 @@ class fixed():
             rospy.set_param('~PublishFrequency', 0.01)
         PublishFrequency = rospy.get_param('~PublishFrequency')
 
-        if not rospy.has_param('~PathStorefile'):
-            usr_name = getpass.getuser()
-            file = "/home/%s/path.json" % usr_name
-            rospy.set_param('~PathStorePath', file)
-        self.file = rospy.get_param('~PathStorePath')
+        usr_name = getpass.getuser()
+        file = "/home/%s/"%usr_name
 
+        if not rospy.has_param('~PathStorePath'):
+            rospy.set_param('~PathStorePath', 'path.json')
+        self.file = file + rospy.get_param('~PathStorePath')
 
         self.period = rospy.Duration(PublishFrequency)
         self.JPS = AlgrithmsLib.JPS()
-
-        self.reset_data()
         self.detect_store_path()
+        self.reset_data()
 
     def reset_data(self):
         self.start = None
@@ -88,20 +88,21 @@ class fixed():
         self.path = []
         self.save_data = []
         self.path_pub = Path()
-        self.path_q = collections.deque(maxlen=1)
         self.init_stack()
 
     def init_stack(self):
+        rospy.loginfo('fixed plan maker: waiting for odom')
         self.start = rospy.wait_for_message(self.OdomTopic, PoseStamped).pose.position
+        rospy.loginfo('fixed_plan_maker: get odom')
         if self.start != None:
             self.JPS_Points = collections.deque(maxlen=1)
             if self.start not in self.JPS_Points:
                 self.JPS_Points.append(self.start)
-                rospy.loginfo('initial data set')
+                rospy.loginfo('fixed_plan_make: initial data set')
 
     def detect_store_path(self):
         if os.path.isfile(self.file):
-            res = raw_input('do you want to use store data? press ' + ' \033[1;31;31m y/Y \033[0m' + ' to load path. or press other key to continue\n')
+            res = raw_input('fixed_plan_maker:\ndo you want to use store data? press ' + ' \033[1;31;31m y/Y \033[0m' + ' to load path. or press other key to continue\n')
             if res.lower() == 'y':
                 data = PathLib.read_path(self.file)
                 path = PathLib.get_store_path(data)
@@ -109,12 +110,18 @@ class fixed():
                 global use_exit_path
                 use_exit_path = True
                 self.publish_data(self.PlanTopic, self.path)
+        else:
+            rospy.logwarn('fixed_plan_maker: No such file')
+            # file = open(self.file, "w")
+            # file.close()
 
     def PlanCB(self, event):
         global use_exit_path
         if use_exit_path:
             if self.seq <= 100:
                 self.publish_data(self.PlanTopic, self.path)
+            else:
+                rospy.signal_shutdown('restart')
 
     def GoalCB(self, goal):
         global Finish
@@ -124,46 +131,45 @@ class fixed():
                 if self.start != None:
                     point = goal.point
                     if point not in self.JPS_Points:
-                        rospy.loginfo('obtain a point')
+                        rospy.loginfo('fixed_plan_maker: obtain a point')
                         self.JPS_Points.append(point)
-                        rospy.loginfo('points in store')
+                        rospy.loginfo('fixed_plan_maker: points in store')
                         path = self.Generate_path()
                         if path != None:
                             self.store = self.start
-                            self.path_q.append(path)
+                            global path_q
+                            path_q.append(path)
                         else:
                             self.JPS_Points.append(self.store)
                             path = self.Generate_path()
                 else:
-                    rospy.logwarn('wait fot odom')
+                    rospy.logwarn('fixed_plan_maker: wait fot odom')
                     self.init_stack()
-            # else:
-            #     self.reset_data()
-
-            rospy.loginfo('\npress' + ' \033[1;31;31m e/E \033[0m' + ' to end process\n' + 'press' + ' \033[1;31;31m r/R \033[0m ' + 'to restart\n' + 'press' + ' \033[1;31;31m s/S \033[0m' + ' to save path\n')
+            rospy.loginfo('fixed_plan_maker: \npress' + ' \033[1;31;31m e/E \033[0m' + ' to end process\n' + 'press' + ' \033[1;31;31m r/R \033[0m ' + 'to restart\n' + 'press' + ' \033[1;31;31m s/S \033[0m' + ' to save path\n')
         else:
-            res = raw_input('do you want to make a new path? press ' + ' \033[1;31;31m y/Y \033[0m' + ' to make a new path\n')
+            res = raw_input('fixed_plan_maker: do you want to make a new path? press ' + ' \033[1;31;31m y/Y \033[0m' + ' to make a new path\n')
             if res.lower() == 'y':
                 use_exit_path = False
                 self.reset_data()
+                rospy.signal_shutdown('restart')
 
-    def PubPlanCB(self, event):
+    def PubPlan_viewCB(self, event):
         global use_exit_path
+        global path_q
         if not use_exit_path:
-            if len(self.path_q) > 0:
-                self.path += self.path_q.pop()
+            if len(path_q) > 0:
+                self.path += path_q.pop()
                 self.save_data = self.path
                 self.seq = 0
                 if not Finish:
                     self.publish_data(self.PlanTopic_view, self.path)
             else:
                 if Finish:
-                    if self.seq <= 100:
-                        self.publish_data(self.PlanTopic, self.path)
-
+                    use_exit_path = True
+                    pass
                 else:
+                # if not Finish:
                     self.publish_data(self.PlanTopic_view, self.path)
-
 
     def publish_data(self, Topic, data):
         PubPlan = Path()
@@ -192,45 +198,44 @@ class fixed():
         global use_exit_path
         if not use_exit_path:
             if not Finish:
-                res = raw_input('press' + ' \033[1;31;31m e/E \033[0m' + ' to end process\n' + 'press' + ' \033[1;31;31m r/R \033[0m ' + 'to restart\n' + 'press' + ' \033[1;31;31m s/S \033[0m' + ' to save path\n')
+                res = raw_input('fixed_plan_maker:\npress' + ' \033[1;31;31m e/E \033[0m' + ' to end process\n' + 'press' + ' \033[1;31;31m r/R \033[0m ' + 'to restart\n' + 'press' + ' \033[1;31;31m s/S \033[0m' + ' to save path\n')
                 if res.lower() == 'e':
                     Finish = True
                     self.seq = 0
-                    rospy.loginfo('end progress')
+                    rospy.loginfo('fixed_plan_maker: end progress')
                 if res.lower() == 'r':
-                    Finish = False
-                    rospy.loginfo('restart progress')
+                    rospy.loginfo('fixed_plan_maker: restart progress')
+                    rospy.signal_shutdown('restart')
                 if res.lower() == 's':
-                    rospy.loginfo('ending progress and saving data...')
+                    rospy.loginfo('fixed_plan_maker: ending progress and saving data...')
                     Save = True
                     Finish = True
             else:
                 if not Save:
-                    rospy.loginfo('\npress' + ' \033[1;31;31m r/R \033[0m ' + 'to restart\n' + 'press' + ' \033[1;31;31m s/S \033[0m' + ' to save path\n')
+                    rospy.loginfo('fixed_plan_maker: \npress' + ' \033[1;31;31m r/R \033[0m ' + 'to restart\n' + 'press' + ' \033[1;31;31m s/S \033[0m' + ' to save path\n')
                 else:
-                    rospy.loginfo('\npress' + ' \033[1;31;31m r/R \033[0m ' + 'to restart\n')
+                    rospy.loginfo('fixed_plan_maker: \npress' + ' \033[1;31;31m r/R \033[0m ' + 'to restart\n')
                 res = raw_input('')
                 if res.lower() == 'r':
-                    Finish = False
-                    Save = False
-                    rospy.loginfo('restart progress')
-                    self.reset_data()
+                    rospy.loginfo('fixed_plan_maker: restart progress')
+                    rospy.signal_shutdown('restart')
 
                 if not Save:
                     if res.lower() == 's':
-                        rospy.loginfo('ending progress and saving data...')
+                        rospy.loginfo('fixed_plan_maker: ending progress and saving data...')
                         Save = True
                         Finish = True
             if Save:
                 PathLib.save_path(self.save_data, self.file)
-                rospy.loginfo('data saved...')
+                rospy.loginfo('fixed_plan_maker: data saved...')
                 self.reset_data()
+                rospy.signal_shutdown('restart')
 
 if __name__=='__main__':
      rospy.init_node('fixed_plan_maker')
      try:
-         rospy.loginfo( "initialization system")
+         rospy.loginfo("fixed_plan_maker: initialization system")
          fixed()
-         rospy.loginfo("process done and quit" )
+         rospy.loginfo("fixed_plan_maker: process done and quit" )
      except rospy.ROSInterruptException:
-         rospy.loginfo("node terminated.")
+         rospy.loginfo("fixed_plan_maker: node terminated.")
