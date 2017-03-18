@@ -87,7 +87,7 @@ class BaseController:
         self.PathAcc = rospy.get_param('~PathAcc')
 
         if not rospy.has_param('~MaxLinearSP'):
-            rospy.set_param('~MaxLinearSP', 0.5)
+            rospy.set_param('~MaxLinearSP', 0.4)
         self.MaxLinearSP = rospy.get_param('~MaxLinearSP')
 
         if not rospy.has_param('~MinLinearSP'):
@@ -191,10 +191,8 @@ class BaseController:
             angle_cmd = -numpy.pi*2 + angle_cmd
         if angle_cmd < -numpy.pi:
             angle_cmd = numpy.pi * 2 + angle_cmd
-        cmd_vector.angular.z = round(angle_cmd, 3)
+        cmd_vector.angular.z = round(angle_cmd, 2)
         cmd_vector.linear.x = round(goal_linear, 3)
-        if 0.0 < cmd_vector.angular.z < 0.03:
-            cmd_vector.angular.z = 0.0
         global cmd_queue
         cmd_queue = cmd_vector
 
@@ -301,17 +299,3 @@ class BaseController:
     def linear_analyse(self, points):
         nodes = CVlib.Linear_analyse(points)
         return nodes
-
-    # def visualise(self, nodes):
-    #     if self.visual_test:
-    #         color = ColorRGBA()
-    #         scale = Point()
-    #         scale.x = 0.05
-    #         scale.y = 0.05
-    #         color.r = 0.0
-    #         color.g = 0.0
-    #         color.b = 1.0
-    #         color.a = 1.0
-    #         result = maplib.visual_test(nodes, Marker.POINTS, color, scale, 1)
-    #         pub = rospy.Publisher('/base_controller_key_node', Marker, queue_size=1)
-    #         pub.publish(result)

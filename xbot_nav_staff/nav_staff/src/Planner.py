@@ -46,9 +46,6 @@ class Planner():
         rospy.Timer(rospy.Duration(0.05), self.ChrashChecker)
         rospy.spin()
 
-    # def OdomCB(self, odom_messge):
-    #     self.odom = odom_messge
-
     def GoalCB(self, data):
         self.MakePlan(data)
 

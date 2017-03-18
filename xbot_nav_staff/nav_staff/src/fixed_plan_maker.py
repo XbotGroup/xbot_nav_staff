@@ -22,6 +22,8 @@ import copy
 from PlanAlgrithmsLib import PathLib
 import os
 import getpass
+from nav_msgs.srv import GetMap
+
 
 Finish = False
 Save = False
@@ -35,7 +37,6 @@ class ClearParams:
         rospy.delete_param('~GoalTopic')
         rospy.delete_param('~PlanTopic')
         rospy.delete_param('~PlanTopic_view')
-        rospy.delete_param('~PublishFrequency')
         rospy.delete_param('~PathStorePath')
 
 class fixed():
@@ -65,10 +66,6 @@ class fixed():
             rospy.set_param('~PlanTopic_view', '/move_base/action_plan/view_fixed')
         self.PlanTopic_view = rospy.get_param('~PlanTopic_view')
 
-        if not rospy.has_param('~PublishFrequency'):
-            rospy.set_param('~PublishFrequency', 0.01)
-        PublishFrequency = rospy.get_param('~PublishFrequency')
-
         usr_name = getpass.getuser()
         file = "/home/%s/"%usr_name
 
@@ -76,7 +73,7 @@ class fixed():
             rospy.set_param('~PathStorePath', 'path.json')
         self.file = file + rospy.get_param('~PathStorePath')
 
-        self.period = rospy.Duration(PublishFrequency)
+        self.period = rospy.Duration(0.01)
         self.JPS = AlgrithmsLib.JPS()
         self.detect_store_path()
         self.reset_data()
@@ -183,12 +180,19 @@ class fixed():
             pub.publish(PubPlan)
 
     def Generate_path(self):
+        rospy.wait_for_service('/JPS_map_init')
+        service = rospy.ServiceProxy('/JPS_map_init', GetMap)
+        map_resp = service()
+        map_message = map_resp.map
+        self.JPS.get_map(map_message)
         if len(self.JPS_Points) > 0:
             end = self.JPS_Points.pop()
             start = copy.deepcopy(self.start)
             self.store = start
             self.start = end
-            return self.JPS.get_path(end, start)
+            path = self.JPS.get_path(end, start)
+            print path
+            return self.JPS.get_full_path(path)
         else:
             return None
 
