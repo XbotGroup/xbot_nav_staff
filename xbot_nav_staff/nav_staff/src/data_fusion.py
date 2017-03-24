@@ -18,7 +18,7 @@ import collections
 from PlanAlgrithmsLib import Data
 import tf
 
-LaserData = collections.deque(maxlen=1)
+# LaserData = collections.deque(maxlen=1)
 
 class ClearParams:
     def __init__(self):
@@ -35,7 +35,6 @@ class fusion():
         self.define()
         rospy.Subscriber(self.use_rplidar_topic, LaserScan, self.rplidarCB)
         rospy.Subscriber(self.use_asus_topic, LaserScan, self.asusCB)
-        rospy.Timer(rospy.Duration(self.period), self.PubLaserCB)
         rospy.spin()
 
     def define(self):
@@ -67,39 +66,27 @@ class fusion():
         while True:
             try:
                 now = rospy.Time.now()
-                listener.waitForTransform('/laser', '/camera_depth_frame', now, rospy.Duration(0.001))
-                (trans, rot) = listener.lookupTransform('/laser', '/camera_depth_frame', now)
+                listener.waitForTransform('camera_depth_frame', 'laser', now, rospy.Duration(1))
+                (self.trans, rot) = listener.lookupTransform('camera_depth_frame', 'laser', now)
+                rospy.loginfo('get transform')
                 break
             except:
                 now = rospy.Time.now()
-                listener.waitForTransform('/laser', '/camera_depth_frame', now, rospy.Duration(0.001))
-        self.tf_rplidar_asus = trans
+                listener.waitForTransform('camera_depth_frame', 'laser', now, rospy.Duration(1))
 
     def rplidarCB(self, laser_message):
         self.laser_data = laser_message
-        self.laser_data.ranges = [i for i in laser_message.ranges]
+        self.Pub_Data(Data.data_transform(self.asus_data,self.laser_data,self.trans))
 
     def asusCB(self, asus_message):
         self.asus_data = asus_message
-        self.asus_data.ranges = [i if i <= self.asus_max_range else numpy.inf for i in asus_message.ranges]
 
-    def Pub_Data(self, data):
-        pub_data = rospy.Publisher(self.scan_topic, LaserScan, queue_size=1)
+    def Pub_Data(self, ranges):
+        data = self.laser_data
         data.header.stamp = rospy.Time.now()
         data.header.frame_id = 'global_scan'
         data.header.seq = self.seq
+        data.ranges = ranges
         self.seq += 1
+        pub_data = rospy.Publisher(self.scan_topic, LaserScan, queue_size=1)
         pub_data.publish(data)
-
-    def PubLaserCB(self, event):
-        global LaserData
-        self.data = None
-        if self.asus_data and self.laser_data:
-            if self.asus_data.header.stamp.secs - self.laser_data.header.stamp.secs == 0.0 and self.asus_data.header.stamp.nsecs - self.laser_data.header.stamp.nsecs <= 10.0**6:
-                Data.data_fusion(self.asus_data, self.laser_data, LaserData, self.tf_rplidar_asus)
-                if len(LaserData) > 0:
-                    self.data = LaserData.pop()
-                    self.Pub_Data(self.data)
-                else:
-                    if self.data != None:
-                        self.Pub_Data(self.data)

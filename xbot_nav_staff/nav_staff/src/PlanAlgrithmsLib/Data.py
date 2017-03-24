@@ -12,6 +12,8 @@ This program is free software; you can redistribute it and/or modify
 
 from sensor_msgs.msg import LaserScan
 import rospy
+import numpy
+from geometry_msgs.msg import Point
 
 def data_fusion(asus_data, laser_data, LaserData, transform):
     if asus_data != None and laser_data != None:
@@ -44,4 +46,29 @@ def data_fusion(asus_data, laser_data, LaserData, transform):
         if laser_data == None:
             rospy.loginfo('wait for rplidar data')
 
-def
+def data_transform(asus_data, laser_data, transform):
+    if asus_data != None and laser_data != None:
+        data = [i for i in laser_data.ranges]
+        angle = asus_data.angle_min
+        for i in asus_data.ranges:
+            if not numpy.isnan(i):
+                siny = numpy.sin(angle) * i + transform[0]
+                cosx = numpy.cos(angle) * i + transform[1]
+                dis = numpy.sqrt(siny ** 2 + cosx ** 2)
+                theta = numpy.arctan(siny / cosx)
+                if numpy.isnan(data[int((numpy.pi - theta)/-laser_data.angle_increment)]):
+                    data[int((numpy.pi - theta)/-laser_data.angle_increment)] = dis
+                elif numpy.isinf(data[int((numpy.pi - theta)/-laser_data.angle_increment)]):
+                    data[int((numpy.pi - theta)/-laser_data.angle_increment)] = dis
+                elif data[int((numpy.pi - theta)/-laser_data.angle_increment)] > dis:
+                    data[int((numpy.pi - theta)/-laser_data.angle_increment)] = dis
+            angle += asus_data.angle_increment
+        return data
+    else:
+        if asus_data == None:
+            rospy.loginfo('wait for asus data')
+        if laser_data == None:
+            rospy.loginfo('wait for rplidar data')
+        return None
+
+
