@@ -86,18 +86,18 @@ class StopRun():
         self.JPS = AlgrithmsLib.JPS()
         self.reset_data()
         self.StopRun_ = rospy.Publisher(self.StopRun_RUN_Topic, Bool, queue_size=1)
-        self.varify_connection()
+        # self.varify_connection()
 
-    def varify_connection(self):
-        rospy.logwarn('varify_connection with topic: '+ str(self.Speak_Done_Topic))
-        while True:
-            if not rospy.wait_for_message(self.Speak_Done_Topic, Bool, timeout= 100.0).data:
-                rospy.logwarn('varify_connection done')
-                self.StopRun_.publish(True)
-                break
-            else:
-                rospy.logwarn('varify_connection failed')
-                self.StopRun_.publish(False)
+    # def varify_connection(self):
+    #     rospy.logwarn('varify_connection with topic: '+ str(self.Speak_Done_Topic))
+    #     while True:
+    #         try:
+    #             if not rospy.wait_for_message(self.Speak_Done_Topic, Bool, timeout= 0.2).data:
+    #                 rospy.logwarn('varify_connection done')
+    #                 self.StopRun_.publish(True)
+    #                 break
+    #         except:
+    #             pass
 
 
     def reset_data(self):
@@ -138,7 +138,8 @@ class StopRun():
                 self.pub_seq = self.publish_data(self.PlanTopic, self.actionpath, self.pub_seq)
             cur_position = rospy.wait_for_message('/robot_position_in_map', PoseStamped).pose.position
             if self.arrive_check(cur_position, self.actionpath[-1].pose.position):
-                self.StopRun_.publish(True)
+                for i in range(2):
+                    self.StopRun_.publish(True)
                 if len(self.path) == 0:
                     rospy.signal_shutdown('restart')
                 else:

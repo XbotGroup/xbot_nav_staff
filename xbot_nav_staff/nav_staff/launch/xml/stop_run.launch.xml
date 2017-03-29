@@ -9,7 +9,7 @@
     <arg name = 'StopRun_RUN_Topic'         default = '/StopRun_run' />
     <arg name = 'Speak_Done_Topic'          default = '/speak_done' />
 
-    <node pkg='nav_staff' type='stop_run_node.py' name='stop_run' output="screen">
+    <node pkg='nav_staff' type='stop_run_node.py' name='stop_run' output="screen"  respawn="true">
         <param name="OdomTopic"                         value="$(arg OdomTopic)" />
         <param name="GoalTopic"                         value="$(arg GoalTopic)" />
         <param name="PlanTopic"                         value="$(arg PlanTopic)" />

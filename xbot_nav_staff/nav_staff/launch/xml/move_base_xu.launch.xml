@@ -102,6 +102,6 @@
     <group/>
 
     <!--Stop run-->
-    <include file="$(find nav_staff)/launch/xml/safety_controller.launch.xml"/>
+    <include file="$(find nav_staff)/launch/xml/stop_run.launch.xml"/>
 
 </launch>
