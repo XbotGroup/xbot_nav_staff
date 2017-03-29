@@ -4,9 +4,10 @@
     <include file="$(find machine)/launch/lidar_scan.launch"/>
 
     <!--map saver-->
-    <arg name="map_path" default="$(find xbot_cruise)/map/"/>
+    <arg name="map_path" default="$(find mapping_xbot)/map/"/>
+    <!--<arg name="map_path" default="$(find xbot_cruise)/map/"/>-->
     <!--<arg name="map_file" default="502.yaml"/>-->
-    <arg name="map_file" default="xlab401.yaml"/>
+    <arg name="map_file" default="001.yaml"/>
 
     <arg name="frame_id"   default="map"/>
     <arg name="root_topic"   default="obstacles"/>
