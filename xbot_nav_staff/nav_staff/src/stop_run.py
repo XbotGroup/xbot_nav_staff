@@ -107,7 +107,8 @@ class StopRun():
         self.path = collections.deque()
         self.reviewpath = []
         self.path_pub = Path()
-        self.init_stack()
+        # self.init_stack()
+        self.init = True
 
     def init_stack(self):
         rospy.logwarn('StopRun: make sure your robot stoped!!')
@@ -158,6 +159,9 @@ class StopRun():
     def GoalCB(self, goal):
         global Finish
         if not Finish:
+            if self.init:
+                self.init_stack()
+                self.init = False
             if self.start != None:
                 path = self.Generate_path(self.start, goal.point)
                 if path != []:
