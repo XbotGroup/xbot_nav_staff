@@ -114,9 +114,9 @@ class BaseController:
          rospy.set_param('~GoalTolerant', 0.01)
         self.GoalTolerant = rospy.get_param('~GoalTolerant')
 
-        if not rospy.has_param('~times'):
-            rospy.set_param('~times', 2)
-        self.times = rospy.get_param('~times')
+        # if not rospy.has_param('~times'):
+        #     rospy.set_param('~times', 1)
+        # self.times = rospy.get_param('~times')
 
         self.path = []
 
@@ -239,7 +239,7 @@ class BaseController:
             segment = [i.pose.position for i in self.path]
             if len(segment) >= 2:
                 Tasks = self.linear_analyse(segment)
-                Tasks = Tasks * self.times
+                # Tasks = Tasks * self.times
 
     def PlanOnceCB(self, PlanPath):
         global switcher

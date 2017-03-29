@@ -2,7 +2,7 @@
     <arg name = 'MotionTopice'      default = 'cmd_vel_mux/input/smoother' />
     <arg name = 'CmdTopice'         default = 'cmd_vel_mux/input/navi' />
     <arg name = 'MaxLinearSP'       default = '0.4' />
-    <arg name = 'accsp'             default = '0.01' />
+    <arg name = 'accsp'             default = '0.05' />
 
     <node pkg='nav_staff' type='smoother.py' name='Cmd_Smoother' output="screen">
         <param name="MotionTopice"         value="$(arg MotionTopice)" />

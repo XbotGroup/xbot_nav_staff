@@ -1,5 +1,6 @@
 <!--this file is demo for nav with auto obstacle avoidance -->
 <launch>
+
     <include file="$(find machine)/launch/lidar_scan.launch"/>
 
     <!--map saver-->
@@ -10,9 +11,9 @@
     <arg name="frame_id"   default="map"/>
     <arg name="root_topic"   default="obstacles"/>
     <arg name="use_map_topic"   default="map"/>
-    <arg name="initial_pose_x" default="1.32349405393"/>
-    <arg name="initial_pose_y" default="6.928266:1443"/>
-    <arg name="initial_pose_a" default="-1.1489145095412117"/>
+    <arg name="initial_pose_x" default="6.40"/>
+    <arg name="initial_pose_y" default="3.75"/>
+    <arg name="initial_pose_a" default="1.571"/>
 
     <node name="map_server" pkg="nav_staff" type="ReadMap.py" output="screen" respawn="true" >
         <param name="map_path"   value="$(arg map_path)"/>

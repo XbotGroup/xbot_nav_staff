@@ -8,14 +8,14 @@
     <arg name="fixed_path"              default="true"/>
     <arg name="use_cost_map"            default="true"/>
 
-    <arg name="potential_field"        value="12" />
+    <arg name="potential_field"        value="6" />
 
 
-    <include file="$(find nav_staff)/launch/xml/safety_controller.launch.xml"/>
+    <!--<include file="$(find nav_staff)/launch/xml/safety_controller.launch.xml"/>-->
 
     <!--base controller-->
     <arg name="PathAcc"                 default='0.5' />
-    <arg name="MaxLinearSP"             default='0.4' />
+    <arg name="MaxLinearSP"             default='0.3' />
     <arg name="MinLinearSP"             default='0.1' />
     <arg name="AngularSP"               default='0.3' />
     <arg name="AngularBias"             default='0.2' />
@@ -25,7 +25,6 @@
     <arg name="FixedPlanTopic"          default="/move_base/action_plan/fixed"/>
     <arg name="OncePlanTopic"           default="/move_base/action_plan"/>
     <arg name="SwitchModleTopic"        default="/move_base/switch" />
-    <arg name="times"                   default= '2' />
 
     <arg if="$(arg fixed_path)" name="MovebasePlanTopic" value="$(arg FixedPlanTopic)" />
     <arg unless="$(arg fixed_path)" name="MovebasePlanTopic" value="$(arg PlanTopic)" />
@@ -48,7 +47,6 @@
         <param name="AngularFree"       value="$(arg AngularFree)" />
         <param name="PublishFrequency"  value="$(arg PublishFrequency)" />
         <param name="GoalTolerant"      value="$(arg GoalTolerant)" />
-        <param name="times"             value="$(arg times)" />
     </node>
 
     <arg name="CmdTopice"               value='cmd_vel_mux/input/navi' />
@@ -102,4 +100,8 @@
             <arg name="use_plan_map_topic"    value="$(arg use_plan_map_topic)"/>
         </include>
     <group/>
+
+    <!--Stop run-->
+    <include file="$(find nav_staff)/launch/xml/safety_controller.launch.xml"/>
+
 </launch>

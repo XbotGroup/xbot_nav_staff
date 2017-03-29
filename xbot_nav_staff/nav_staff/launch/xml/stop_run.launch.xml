@@ -1,0 +1,24 @@
+<launch>
+    <arg name = 'OdomTopic'                 default = '/robot_position_in_map' />
+    <arg name = 'GoalTopic'                 default = '/clicked_point' />
+    <arg name = 'PlanTopic'                 default = '/move_base/action_plan/fixed' />
+    <arg name = 'PlanTopic_view'            default = '/move_base/action_plan/view_fixed' />
+
+    <arg name = 'PathStorePath'             default = 'path.json' />
+    <arg name = 'times'                     default = '2' />
+    <arg name = 'StopRun_RUN_Topic'         default = '/StopRun_run' />
+    <arg name = 'Speak_Done_Topic'          default = '/speak_done' />
+
+    <node pkg='nav_staff' type='stop_run_node.py' name='stop_run' output="screen">
+        <param name="OdomTopic"                         value="$(arg OdomTopic)" />
+        <param name="GoalTopic"                         value="$(arg GoalTopic)" />
+        <param name="PlanTopic"                         value="$(arg PlanTopic)" />
+        <param name="PlanTopic_view"                    value="$(arg PlanTopic_view)" />
+
+        <param name="PathStorePath"                     value="$(arg PathStorePath)" />
+        <param name="times"                             value="$(arg times)" />
+        <param name="StopRun_RUN_Topic"                 value="$(arg StopRun_RUN_Topic)" />
+        <param name="Speak_Done_Topic"                  value="$(arg Speak_Done_Topic)" />
+
+    </node>
+</launch>
