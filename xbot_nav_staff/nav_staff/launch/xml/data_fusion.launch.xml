@@ -1,0 +1,25 @@
+<launch>
+    <arg name = 'fussion_use_rplidar_topic'      default = '/rplidar_scan' />
+    <arg name = 'fussion_use_asus_topic'         default = '/asus_scan' />
+    <arg name = 'fussion_scan_topic'             default = '/scan' />
+
+    <arg name = 'fussion_target_frame'           default= 'laser' />
+    <arg name = 'fussion_source_frame'           default= 'camera_depth_frame' />
+    <arg name = 'fussion_data_frame'             default= 'global_scan' />
+
+    <arg name = 'fussion_PublishFrequency'       default= '0.01' />
+    <arg name = 'fussion_asus_max_range'         default= '4.0' />
+
+    <node pkg='nav_staff' type='data_fusion_node.py' name='data_fusion' output="screen">
+        <param name="fussion_use_rplidar_topic"         value="$(arg fussion_use_rplidar_topic)" />
+        <param name="fussion_use_asus_topic"            value="$(arg fussion_use_asus_topic)" />
+        <param name="fussion_scan_topic"                value="$(arg fussion_scan_topic)" />
+
+        <param name="fussion_target_frame"              value="$(arg fussion_target_frame)" />
+        <param name="fussion_source_frame"              value="$(arg fussion_source_frame)" />
+        <param name="fussion_data_frame"                value="$(arg fussion_data_frame)" />
+
+        <param name="fussion_PublishFrequency"          value="$(arg fussion_PublishFrequency)" />
+        <param name="fussion_asus_max_range"            value="$(arg fussion_asus_max_range)" />
+    </node>
+</launch>

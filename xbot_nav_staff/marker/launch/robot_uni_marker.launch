@@ -1,0 +1,13 @@
+<launch>
+   <arg name = "robot_laber"             default = "  Xbot " />
+   <arg name = "laber_height"            default = '1.3'   />
+   <arg name = "OdomTopic"               default="/robot_position_in_map"/>
+
+   <include file="$(find marker)/launch/xml/robot_uni_marker.launch.xml" >
+      <arg name = "robot_laber"             value = '$(arg robot_laber)' />
+      <arg name = "laber_height"            value = '$(arg laber_height)'   />
+      <arg name = "OdomTopic"                 value = '$(arg OdomTopic)'/>
+
+   </include>
+</launch>
+

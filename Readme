@@ -1,0 +1,5 @@
+launch之后的运行步骤
+roslaunch machine Xbot_amcl.launch
+roslaunch machine robot_controller_single.launch
+roslaunch machine 3D_RVIZ.launch
+rosrun nav_staff init_pose_handle.py

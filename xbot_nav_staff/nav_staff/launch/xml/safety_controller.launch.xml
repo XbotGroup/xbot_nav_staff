@@ -1,0 +1,13 @@
+<launch>
+    <arg name = 'InfraTopic'        default = '/sensor/echo_data' />
+    <arg name = 'NaviTopic'         default = '/cmd_vel_mux/input/navi' />
+    <arg name = 'TeleTopic'         default = '/cmd_vel_mux/input/teleop' />
+    <arg name = 'accsp'             default = '0.005' />
+
+    <node pkg='nav_staff' type='safety_control.py' name='Safety_Control' output="screen">
+        <param name="InfraTopic"         value="$(arg InfraTopic)" />
+        <param name="NaviTopic"          value="$(arg NaviTopic)" />
+        <param name="TeleTopic"          value="$(arg TeleTopic)" />
+        <param name="accsp"              value="$(arg accsp)" />
+    </node>
+</launch>

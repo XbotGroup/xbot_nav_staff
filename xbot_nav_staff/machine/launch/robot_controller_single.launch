@@ -1,0 +1,13 @@
+<launch>
+   <!--启动机器人标记-->
+   <include file="$(find marker)/launch/robot_uni_marker.launch" >
+      <arg name = "robot_laber"             value = " Xbot " />
+      <arg name = "laber_height"            value = "1.3" />
+      <arg name = "OdomTopic"               value = "/robot_position_in_map"/>
+   </include>
+   <!--用户交互-->
+   <include file="$(find marker)/launch/ui_marker.launch" />
+
+   <include file="$(find nav_staff)/launch/xml/fixed_plan_maker.launch.xml"/>
+
+</launch>

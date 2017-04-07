@@ -1,0 +1,50 @@
+<!--this file is demo for nav with auto obstacle avoidance -->
+<launch>
+
+    <include file="$(find machine)/launch/lidar_scan.launch"/>
+
+    <!--map saver-->
+        <!--<arg name="map_path" default="$(find xbot_cruise)/map/"/>-->
+    <!--<arg name="map_file" default="502.yaml"/>-->
+    <arg name="map_path" default="$(find mapping_xbot)/map/"/>
+    <arg name="map_file" default="xlab401.yaml"/>
+
+    <arg name="frame_id"   default="map"/>
+    <arg name="root_topic"   default="obstacles"/>
+    <arg name="use_map_topic"   default="map"/>
+    <arg name="initial_pose_x" default="6.40"/>
+    <arg name="initial_pose_y" default="3.75"/>
+    <arg name="initial_pose_a" default="1.571"/>
+
+    <node name="map_server" pkg="nav_staff" type="ReadMap.py" output="screen" respawn="true" >
+        <param name="map_path"   value="$(arg map_path)"/>
+        <param name="map_file"   value="$(arg map_file)"/>
+        <param name="frame_id"   value="$(arg frame_id)"/>
+        <param name="root_topic"   value="$(arg root_topic)"/>
+        <param name="use_map_topic"   value="$(arg use_map_topic)"/>
+    </node>
+
+    <!--amcl-->
+    <include file="$(find nav_staff)/launch/xml/amcl_xu.launch.xml">
+        <arg name="initial_pose_x"   value="$(arg initial_pose_x)"/>
+        <arg name="initial_pose_y"   value="$(arg initial_pose_y)"/>
+        <arg name="initial_pose_a"   value="$(arg initial_pose_a)"/>
+        <arg name="amcl_frequency"   value="0.25"/>
+        <arg name="amcl_scan_topic"  value="/scan"/>
+    </include>
+
+    <!--amcl odom-->
+    <arg name="target_frame"               value="/map"/>
+    <arg name="source_frame"               value="/base_footprint"/>
+    <arg name="use_odom_topic"             value="/robot_position_in_map"/>
+    <include file="$(find amcl_odom)/launch/robot_position_in_map.launch">
+        <arg name="target_frame"   value="$(arg target_frame)"/>
+        <arg name="source_frame"   value="$(arg source_frame)"/>
+        <arg name="use_odom_topic"   value="$(arg use_odom_topic)"/>
+    </include>
+
+    <!--move base-->
+    <include file="$(find nav_staff)/launch/xml/move_base_xu.launch.xml" />
+
+
+</launch>
