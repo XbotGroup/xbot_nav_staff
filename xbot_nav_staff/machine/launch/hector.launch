@@ -1,0 +1,12 @@
+<!--this file is demo for hector slam by howe -->
+<launch>
+
+    <!--global scan-->
+    <include file="$(find machine)/launch/lidar_scan.launch"/>
+    
+    <!-- hector mapping -->
+    <include file="$(find hector_mapping)/launch/mapping_default.launch">
+        <arg name="odom_frame" value="odom"/>
+    </include>
+
+</launch>
