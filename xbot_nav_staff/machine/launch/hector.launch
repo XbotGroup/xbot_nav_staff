@@ -2,7 +2,14 @@
 <launch>
 
     <!--global scan-->
-    <include file="$(find machine)/launch/lidar_scan.launch"/>
+    <include file="$(find nav_staff)/launch/xml/data_fusion.launch.xml">
+        <arg name = 'fussion_use_rplidar_topic'      value = '/rplidar_scan' />
+        <arg name = 'fussion_use_asus_topic'         value = '/asus_scan' />
+        <arg name = 'fussion_scan_topic'             value = '/scan' />
+
+        <arg name = 'fussion_PublishFrequency'       value= '0.01' />
+        <arg name = 'fussion_asus_max_range'         value= '3.0' />
+    </include>
     
     <!-- hector mapping -->
     <include file="$(find hector_mapping)/launch/mapping_default.launch">
